@@ -8,12 +8,15 @@
 # ------------------------------------------------------------------------
 
 import gzip, numpy, torch
-    
+
+
+
+
 if __name__ == '__main__':
 	batch_size = 5 # nombre de données lues à chaque fois
 	nb_epochs = 10 # nombre de fois que la base de données sera lue
 	eta = 0.00001 # taux d'apprentissage
-	
+
 	# on lit les données
 	((data_train,label_train),(data_test,label_test)) = torch.load(gzip.open('mnist.pkl.gz'))
 
