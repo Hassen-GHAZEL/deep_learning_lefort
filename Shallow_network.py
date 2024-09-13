@@ -1,106 +1,118 @@
-# coding: utf8
-# !/usr/bin/env python
-# ------------------------------------------------------------------------
-# Perceptron en pytorch (en utilisant juste les tenseurs)
-# Écrit par Mathieu Lefort
-#
-# Distribué sous licence BSD.
-# ------------------------------------------------------------------------
+import gzip
+import torch
+from torch.utils.data import DataLoader, TensorDataset
 
-import gzip, numpy, torch
-from time import sleep
-    
-class parameters:
-	def __init__(self, val,max,interval):
-		self.val = val
-		self.max = max
-		self.interval = interval
+def definir_hyperparametres(batch_size=5, nb_epochs=10, learning_rate=0.0001, input_size=784, hidden_size=128, output_size=10, weight_init_range=(-0.001, 0.001)):
+    """
+    Fonction pour définir les hyperparamètres du modèle.
+    Renvoie un dictionnaire contenant les hyperparamètres.
+    """
+    params = {
+        'batch_size': batch_size,          # Taille des lots de données pour l'entraînement
+        'nb_epochs': nb_epochs,            # Nombre d'époques d'entraînement
+        'learning_rate': learning_rate,    # Taux d'apprentissage pour l'optimiseur
+        'input_size': input_size,          # Nombre de caractéristiques d'entrée (28x28 pixels pour MNIST)
+        'hidden_size': hidden_size,        # Nombre de neurones dans la couche cachée
+        'output_size': output_size,        # Nombre de classes (0 à 9 pour MNIST)
+        'weight_init_range': weight_init_range  # Plage d'initialisation des poids
+    }
+    return params
 
-	def iterate(self):
-		val = self.val
-		max = self.max
-		interval = self.interval
+# Définition de la classe pour le modèle de réseau de neurones
+class PerceptronMulticouche(torch.nn.Module):
+    def __init__(self, input_size, hidden_size, output_size):
+        super(PerceptronMulticouche, self).__init__()
+        # Définition des couches du modèle
+        self.hidden_layer = torch.nn.Linear(input_size, hidden_size)  # Couche cachée
+        self.output_layer = torch.nn.Linear(hidden_size, output_size) # Couche de sortie
+        self.activation = torch.nn.ReLU()  # Fonction d'activation ReLU
+        self.train_loader = None  # Chargeur de données d'entraînement (sera initialisé plus tard)
+        self.test_loader = None   # Chargeur de données de test (sera initialisé plus tard)
 
-		while val <= max:
-			yield val
-			val += interval	
+    def forward(self, x):
+        # Calcul du passage avant (forward) à travers le réseau
+        hidden_output = self.activation(self.hidden_layer(x))  # Sortie de la couche cachée
+        output = self.output_layer(hidden_output)  # Sortie de la couche de sortie
+        return output
 
-class hyperparametersGenerator:
-	def __init__(self, batch_size, nb_epochs, eta, w_min, w_max, nb_neurons):
-		self.batch_size_generator = batch_size
-		self.nb_epochs_generator = nb_epochs
-		self.eta_generator = eta
-		self.w_min_generator = w_min
-		self.w_max_generator = w_max
-		self.nb_neurons_generator = nb_neurons
+    def charger_donnees(self, chemin_fichier, params):
+        """
+        Méthode pour charger les données MNIST et créer les ensembles de données et les chargeurs de données.
+        """
+        # Chargement des données MNIST depuis un fichier compressé
+        with gzip.open(chemin_fichier, 'rb') as f:
+            (data_train, label_train), (data_test, label_test) = torch.load(f)
 
-	def iterate(self):
-		for batch_size in self.batch_size_generator.iterate():
-			for nb_epochs in self.nb_epochs_generator.iterate():
-				for eta in self.eta_generator.iterate():
-					for w_min in self.w_min_generator.iterate():
-						for w_max in self.w_max_generator.iterate():
-							for nb_neurons in self.nb_neurons_generator.iterate():
-								yield hyperparameters(batch_size, nb_epochs, eta, w_min, w_max, nb_neurons)
-							
-class hyperparameters:
-	def __init__(self, batch_size, nb_epochs, eta, w_min, w_max, nb_neurons):
-		self.batch_size = batch_size
-		self.nb_epochs = nb_epochs
-		self.eta = eta
-		self.w_min = w_min
-		self.w_max = w_max
-		self.nb_neurons = nb_neurons
+        # Création des ensembles de données de formation et de test
+        train_dataset = TensorDataset(data_train, label_train)
+        test_dataset = TensorDataset(data_test, label_test)
+
+        # Création des chargeurs de données (DataLoader) pour l'entraînement et le test
+        self.train_loader = DataLoader(train_dataset, batch_size=params['batch_size'], shuffle=True)
+        self.test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
+
+    def train_mlp(self, params):
+        """
+        Méthode pour entraîner le perceptron multicouche et afficher les pertes d'entraînement et de validation.
+        """
+        # Initialisation aléatoire des poids du modèle avec les hyperparamètres définis
+        weight_init_min, weight_init_max = params['weight_init_range']
+        torch.nn.init.uniform_(self.hidden_layer.weight, weight_init_min, weight_init_max)
+        torch.nn.init.uniform_(self.output_layer.weight, weight_init_min, weight_init_max)
+
+        # Définition de la fonction de perte et de l'optimiseur
+        loss_func = torch.nn.CrossEntropyLoss()  # Fonction de perte pour la classification multi-classe
+        optimizer = torch.optim.SGD(self.parameters(), lr=params['learning_rate'])  # Optimiseur SGD avec le taux d'apprentissage défini
+
+        # Boucle d'entraînement sur le nombre d'époques spécifié
+        for epoch in range(params['nb_epochs']):
+            self.train()  # Met le modèle en mode entraînement
+            total_loss = 0  # Initialisation de la perte totale pour cette époque
+
+            # Itération sur les lots de données d'entraînement
+            for x, t in self.train_loader:
+                optimizer.zero_grad()  # Réinitialisation des gradients
+                y = self(x)  # Calcul de la sortie du modèle
+                loss = loss_func(y, t)  # Calcul de la perte
+                loss.backward()  # Calcul des gradients pour la rétropropagation
+                optimizer.step()  # Mise à jour des poids du modèle
+                total_loss += loss.item()  # Accumulation de la perte pour affichage
+
+            # Calcul de la perte de validation
+            self.eval()  # Met le modèle en mode évaluation
+            val_loss = 0  # Initialisation de la perte totale pour la validation
+            correct = 0  # Compteur pour les prédictions correctes
+            total = 0  # Nombre total d'exemples de test
+            with torch.no_grad():  # Désactive la dérivation des gradients pour l'évaluation
+                for x, t in self.test_loader:
+                    y = self(x)  # Calcul de la sortie du modèle
+                    loss = loss_func(y, t)  # Calcul de la perte de validation
+                    val_loss += loss.item()  # Accumulation de la perte de validation
+                    
+                    pred = torch.argmax(y, dim=1)  # Prédiction de la classe la plus probable
+                    correct += (pred == t).sum().item()  # Incrémente le compteur si la prédiction est correcte
+                    
+                    total += t.size(0)  # Incrémente le nombre total d'exemples
+
+            # Calcul de la précision et de la perte de validation moyenne
+            accuracy = 100 * correct / total if total > 0 else 0  # Calcul de la précision en pourcentage
+            avg_train_loss = total_loss / len(self.train_loader)  # Perte d'entraînement moyenne
+            avg_val_loss = val_loss / len(self.test_loader)  # Perte de validation moyenne
+
+            # Affichage des résultats
+            print(f'Epoch {epoch+1}/{params["nb_epochs"]}, Train Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}, Accuracy: {accuracy:.2f}%')
 
 
-generator = hyperparametersGenerator(
-	parameters(5, 10, 1),
-	parameters(10, 10, 1),
-	parameters(0.00001, 1, 0.25),
-	parameters(-0.001, 0, 0.25),
-	parameters(0.001, 1, 0.25),
-	parameters(1, 2048, 1000)
-)
+# Exemple d'utilisation
+if __name__ == "__main__":
+    # Chargement des hyperparamètres
+    params = definir_hyperparametres()
 
-if __name__ == '__main__':
-	# on lit les données
-	((data_train,label_train),(data_test,label_test)) = torch.load(gzip.open('mnist.pkl.gz'))
-	datasetTrain = torch.utils.data.TensorDataset(data_train,label_train)
-	datasetTest = torch.utils.data.TensorDataset(data_test,label_test)
+    # Initialisation du modèle
+    model = PerceptronMulticouche(params['input_size'], params['hidden_size'], params['output_size'])
 
-	for hyperparameter in generator.iterate():
-		batch_size = hyperparameter.batch_size # nombre de données lues à chaque fois
-		nb_epochs = hyperparameter.nb_epochs # nombre de fois que la base de données sera lue
-		eta = hyperparameter.eta # taux d'apprentissage
-		w_min = hyperparameter.w_min # poids min
-		w_max = hyperparameter.w_max # poids max
-		nb_neurons = hyperparameter.nb_neurons # nombre de neurones
+    # Chargement des données
+    model.charger_donnees('mnist.pkl.gz', params)
 
-
-		model = torch.nn.Sequential(
-			torch.nn.Linear(data_train.shape[1],nb_neurons),
-			torch.nn.ReLU(),
-			torch.nn.Linear(nb_neurons,label_train.shape[1])
-		)
-
-		loaderTrain = torch.utils.data.DataLoader(datasetTrain, batch_size=batch_size, shuffle=True)
-		loaderTest = torch.utils.data.DataLoader(datasetTest, batch_size=1, shuffle=False)		
-
-		torch.nn.init.uniform_(model[0].weight,w_min,w_max)
-		torch.nn.init.uniform_(model[2].weight,w_min,w_max)
-		loss_func = torch.nn.MSELoss(reduction='sum')
-		optim = torch.optim.SGD(model.parameters(), lr=eta)
-
-		for n in range(nb_epochs):
-			for x,t in loaderTrain:
-				y = model(x)
-				loss = loss_func(t,y)
-				loss.backward()
-				optim.step()
-				optim.zero_grad()
-			acc = 0.
-			for x,t in loaderTest:
-				y = model(x)
-				acc += torch.argmax(y,1) == torch.argmax(t,1)
-
-			print("{0},{1},{2},{3},{4},{5},{6}".format(batch_size, nb_epochs, eta, w_min, w_max, nb_neurons,(acc/data_test.shape[0]).item()))
+    # Entraînement du modèle
+    model.train_mlp(params)
