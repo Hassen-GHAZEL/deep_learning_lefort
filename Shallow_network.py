@@ -1,6 +1,10 @@
-import gzip
 import torch
+import torch.nn as nn
+import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
+import gzip  # Assurez-vous d'importer le module gzip
+import numpy as np
+from Excel import *
 
 def definir_hyperparametres(batch_size=5, nb_epochs=10, learning_rate=0.0001, input_size=784, hidden_size=128, output_size=10, weight_init_range=(-0.001, 0.001)):
     """
@@ -19,90 +23,74 @@ def definir_hyperparametres(batch_size=5, nb_epochs=10, learning_rate=0.0001, in
     return params
 
 # Définition de la classe pour le modèle de réseau de neurones
-class PerceptronMulticouche(torch.nn.Module):
-    def __init__(self, input_size, hidden_size, output_size):
+class PerceptronMulticouche(nn.Module):
+
+    count = 0
+    column_name = ["batch_size", "nb_epochs", "learning_rate", "input_size", "hidden_size", "output_size", "weight_init_range", "train_loss", "val_loss", "accuracy"]
+    column_name = column_name + ["Train Loss", "Val Loss", "Accuracy"]
+    excel = ExcelManager("tableau1.xlsx", definir_hyperparametres().keys())
+    def __init__(self, input_size, hidden_size, output_size, weight_init_range):
         super(PerceptronMulticouche, self).__init__()
-        # Définition des couches du modèle
-        self.hidden_layer = torch.nn.Linear(input_size, hidden_size)  # Couche cachée
-        self.output_layer = torch.nn.Linear(hidden_size, output_size) # Couche de sortie
-        self.activation = torch.nn.ReLU()  # Fonction d'activation ReLU
-        self.train_loader = None  # Chargeur de données d'entraînement (sera initialisé plus tard)
-        self.test_loader = None   # Chargeur de données de test (sera initialisé plus tard)
+
+        # Définition des couches du réseau
+        self.hidden = nn.Linear(input_size, hidden_size)
+        self.output = nn.Linear(hidden_size, output_size)
+
+        # Initialisation des poids
+        nn.init.uniform_(self.hidden.weight, *weight_init_range)
+        nn.init.uniform_(self.output.weight, *weight_init_range)
 
     def forward(self, x):
-        # Calcul du passage avant (forward) à travers le réseau
-        hidden_output = self.activation(self.hidden_layer(x))  # Sortie de la couche cachée
-        output = self.output_layer(hidden_output)  # Sortie de la couche de sortie
-        return output
+        x = torch.relu(self.hidden(x))  # Fonction d'activation ReLU pour la couche cachée
+        x = self.output(x)  # Sortie linéaire
+        return x
 
-    def charger_donnees(self, chemin_fichier, params):
-        """
-        Méthode pour charger les données MNIST et créer les ensembles de données et les chargeurs de données.
-        """
-        # Chargement des données MNIST depuis un fichier compressé
-        with gzip.open(chemin_fichier, 'rb') as f:
-            (data_train, label_train), (data_test, label_test) = torch.load(f)
+    def train_and_evaluate(self, train_loader, val_loader, params, total_call, sheet_name):
+        # Définir l'optimiseur et la fonction de perte
+        optimizer = optim.SGD(self.parameters(), lr=params['learning_rate'])
+        loss_func = nn.CrossEntropyLoss()
 
-        # Création des ensembles de données de formation et de test
-        train_dataset = TensorDataset(data_train, label_train)
-        test_dataset = TensorDataset(data_test, label_test)
-
-        # Création des chargeurs de données (DataLoader) pour l'entraînement et le test
-        self.train_loader = DataLoader(train_dataset, batch_size=params['batch_size'], shuffle=True)
-        self.test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
-
-    def train_mlp(self, params):
-        """
-        Méthode pour entraîner le perceptron multicouche et afficher les pertes d'entraînement et de validation.
-        """
-        # Initialisation aléatoire des poids du modèle avec les hyperparamètres définis
-        weight_init_min, weight_init_max = params['weight_init_range']
-        torch.nn.init.uniform_(self.hidden_layer.weight, weight_init_min, weight_init_max)
-        torch.nn.init.uniform_(self.output_layer.weight, weight_init_min, weight_init_max)
-
-        # Définition de la fonction de perte et de l'optimiseur
-        loss_func = torch.nn.CrossEntropyLoss()  # Fonction de perte pour la classification multi-classe
-        optimizer = torch.optim.SGD(self.parameters(), lr=params['learning_rate'])  # Optimiseur SGD avec le taux d'apprentissage défini
-
-        # Boucle d'entraînement sur le nombre d'époques spécifié
         for epoch in range(params['nb_epochs']):
-            self.train()  # Met le modèle en mode entraînement
-            total_loss = 0  # Initialisation de la perte totale pour cette époque
+            # Phase d'entraînement
+            self.train()
+            train_loss = 0
+            for x_batch, y_batch in train_loader:
+                optimizer.zero_grad()
+                y_pred = self.forward(x_batch)
+                loss = loss_func(y_pred, torch.argmax(y_batch, dim=1))
+                loss.backward()
+                optimizer.step()
+                train_loss += loss.item()
 
-            # Itération sur les lots de données d'entraînement
-            for x, t in self.train_loader:
-                optimizer.zero_grad()  # Réinitialisation des gradients
-                y = self(x)  # Calcul de la sortie du modèle
-                loss = loss_func(y, t)  # Calcul de la perte
-                loss.backward()  # Calcul des gradients pour la rétropropagation
-                optimizer.step()  # Mise à jour des poids du modèle
-                total_loss += loss.item()  # Accumulation de la perte pour affichage
+            train_loss /= len(train_loader)
 
-            # Calcul de la perte de validation
-            self.eval()  # Met le modèle en mode évaluation
-            val_loss = 0  # Initialisation de la perte totale pour la validation
-            correct = 0  # Compteur pour les prédictions correctes
-            total = 0  # Nombre total d'exemples de test
-            with torch.no_grad():  # Désactive la dérivation des gradients pour l'évaluation
-                for x, t in self.test_loader:
-                    y = self(x)  # Calcul de la sortie du modèle
-                    loss = loss_func(y, t)  # Calcul de la perte de validation
-                    val_loss += loss.item()  # Accumulation de la perte de validation
-                    
-                    pred = torch.argmax(y, dim=1)  # Prédiction de la classe la plus probable
-                    correct += (pred == t).sum().item()  # Incrémente le compteur si la prédiction est correcte
-                    
-                    total += t.size(0)  # Incrémente le nombre total d'exemples
+            # Phase de validation
+            self.eval()
+            val_loss = 0
+            correct = 0
+            total = 0
+            with torch.no_grad():
+                for x_val, y_val in val_loader:
+                    y_val_pred = self.forward(x_val)
+                    loss = loss_func(y_val_pred, torch.argmax(y_val, dim=1))
+                    val_loss += loss.item()
+                    _, predicted = torch.max(y_val_pred, 1)
+                    correct += (predicted == torch.argmax(y_val, dim=1)).sum().item()
+                    total += y_val.size(0)
 
-            # Calcul de la précision et de la perte de validation moyenne
-            accuracy = 100 * correct / total if total > 0 else 0  # Calcul de la précision en pourcentage
-            avg_train_loss = total_loss / len(self.train_loader)  # Perte d'entraînement moyenne
-            avg_val_loss = val_loss / len(self.test_loader)  # Perte de validation moyenne
+            val_loss /= len(val_loader)
+            accuracy = correct * 100 / total
 
-            # Affichage des résultats
-            print(f'Epoch {epoch+1}/{params["nb_epochs"]}, Train Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}, Accuracy: {accuracy:.2f}%')
+            # Affichage des métriques
 
-
+            PerceptronMulticouche.count += 1
+            print(f"PerceptronMulticouche.count/total_call  : {PerceptronMulticouche.count}/{total_call} = {(PerceptronMulticouche.count*100/total_call):.3f}%")
+            print(f"Epoch {epoch + 1}/{params['nb_epochs']}, Train Loss: {train_loss:.3f}, Val Loss: {val_loss:.3f}, Accuracy: {accuracy :.4f}%")
+            if epoch + 1 == params['nb_epochs']:
+                row = [valeur for valeur in params.values()]
+                row = row + [train_loss, val_loss, accuracy]
+                PerceptronMulticouche.excel.add_row(sheet_name, row)
+"""
 # Exemple d'utilisation
 if __name__ == "__main__":
     # Chargement des hyperparamètres
@@ -116,3 +104,4 @@ if __name__ == "__main__":
 
     # Entraînement du modèle
     model.train_mlp(params)
+"""

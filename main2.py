@@ -7,11 +7,9 @@ tab_learning_rate = [0.0001, 0.001, 0.01, 0.1, 0.25, 0.4, 0.5, 0.6, 0.75, 0.9, 1
 tab_hidden_size = [32, 64, 128, 256, 512]
 tab_weight_init_range = [(0, 0.1), (-0.1, 0.1), (-0.01, 0.01), (-0.001, 0.001), (-0.0001, 0.0001)]
 
-
 nb_operation = len(tab_batch_size) * len(tab_learning_rate) * len(tab_hidden_size) * len(tab_weight_init_range)
 nb_operation += sum(tab_nb_epochs)
 print("Nombre total d'opérations : ", nb_operation)
-
 
 # Chargement des données
 with gzip.open('mnist.pkl.gz', 'rb') as f:
@@ -21,6 +19,7 @@ with gzip.open('mnist.pkl.gz', 'rb') as f:
 train_dataset = TensorDataset(data_train, label_train)
 val_dataset = TensorDataset(data_test, label_test)  # Utilisation de l'ensemble de test comme validation pour simplifier
 
+
 def charger_donnees(params):
     """
     Fonction pour charger les données et créer les DataLoader.
@@ -29,6 +28,26 @@ def charger_donnees(params):
     train_loader = DataLoader(train_dataset, batch_size=params['batch_size'], shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=params['batch_size'], shuffle=False)
     return train_loader, val_loader
+
+for batch_size in tab_batch_size:
+    for nb_epochs in tab_nb_epochs:
+        for learning_rate in tab_learning_rate:
+            for hidden_size in tab_hidden_size:
+                for weight_init_range in tab_weight_init_range:
+
+                    params = definir_hyperparametres(batch_size=batch_size, nb_epochs=nb_epochs, learning_rate=learning_rate,
+                                                      hidden_size=hidden_size, weight_init_range=weight_init_range)
+
+                    # Initialisation du modèle
+                    model = PerceptronMulticouche(params['input_size'], params['hidden_size'], params['output_size'],
+                                                   params['weight_init_range'])
+
+                    # Chargement des données
+                    train_loader, val_loader = charger_donnees(params)
+
+                    # Entraînement du modèle
+                    model.train_and_evaluate(train_loader, val_loader, params)
+
 
 print("INFLUENCE DE BATCH_SIZE (taille des lots de données pour l'entraînement)")
 
@@ -44,7 +63,7 @@ for batch_size in tab_batch_size:
     train_loader, val_loader = charger_donnees(params)
 
     # Entraînement du modèle
-    model.train_and_evaluate(train_loader, val_loader, params, nb_operation, "batch_size")
+    model.train_and_evaluate(train_loader, val_loader, params)
 
 print("INFLUENCE DE NB_EPOCHS (nombre d'époques d'entraînement)")
 
@@ -61,7 +80,7 @@ for nb_epochs in tab_nb_epochs:
     train_loader, val_loader = charger_donnees(params)
 
     # Entraînement du modèle
-    model.train_and_evaluate(train_loader, val_loader, params, nb_operation, "nb_epochs")
+    model.train_and_evaluate(train_loader, val_loader, params)
 
 print("INFLUENCE DE LEARNING_RATE (taux d'apprentissage pour l'optimiseur)")
 
@@ -77,7 +96,7 @@ for learning_rate in tab_learning_rate:
     train_loader, val_loader = charger_donnees(params)
 
     # Entraînement du modèle
-    model.train_and_evaluate(train_loader, val_loader, params, nb_operation, "learning_rate")
+    model.train_and_evaluate(train_loader, val_loader, params)
 
 print("INFLUENCE DE HIDDEN_SIZE (nombre de neurones dans la couche cachée)")
 
@@ -93,7 +112,7 @@ for hidden_size in tab_hidden_size:
     train_loader, val_loader = charger_donnees(params)
 
     # Entraînement du modèle
-    model.train_and_evaluate(train_loader, val_loader, params, nb_operation, "hidden_size")
+    model.train_and_evaluate(train_loader, val_loader, params)
 
 print("INFLUENCE DE WEIGHT_INIT_RANGE (plage d'initialisation des poids)")
 
@@ -109,4 +128,4 @@ for weight_init_range in tab_weight_init_range:
     train_loader, val_loader = charger_donnees(params)
 
     # Entraînement du modèle
-    model.train_and_evaluate(train_loader, val_loader, params, nb_operation, "weight_init_range")
+    model.train_and_evaluate(train_loader, val_loader, params)

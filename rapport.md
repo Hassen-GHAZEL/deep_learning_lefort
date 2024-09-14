@@ -52,3 +52,5 @@
     - **Description** : Précision du modèle sur l'ensemble de test, calculée comme la proportion d'exemples correctement classifiés par rapport au nombre total d'exemples de test. C'est un scalaire qui représente la précision du modèle.
 
 ## Partie 2 : Shallow Network
+
+Nous sommes actuellement en train de tester l'ifluence de chaque hyperparamètre.

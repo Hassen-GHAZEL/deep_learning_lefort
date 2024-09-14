@@ -9,9 +9,6 @@
 
 import gzip, numpy, torch
 
-
-
-
 if __name__ == '__main__':
 	batch_size = 5 # nombre de données lues à chaque fois
 	nb_epochs = 10 # nombre de fois que la base de données sera lue
