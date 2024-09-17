@@ -1,4 +1,11 @@
+from datetime import datetime, timedelta
 from Shallow_network import *
+
+
+#virer l'insertion des ligne avant echo final et echo_iter = 0
+
+# Obtenir l'heure de début
+heure_de_debut = datetime.now().strftime("%H:%M:%S")
 
 # Définition des valeurs à tester pour chaque hyperparamètre
 tab_batch_size = list(range(1, 21, 2))
@@ -7,9 +14,8 @@ tab_learning_rate = [0.0001, 0.001, 0.01, 0.1, 0.25, 0.4, 0.5, 0.6, 0.75, 0.9, 1
 tab_hidden_size = [32, 64, 128, 256, 512]
 tab_weight_init_range = [(0, 0.1), (-0.1, 0.1), (-0.01, 0.01), (-0.001, 0.001), (-0.0001, 0.0001)]
 
-nb_operation = len(tab_batch_size) * len(tab_learning_rate) * len(tab_hidden_size) * len(tab_weight_init_range)
-nb_operation += sum(tab_nb_epochs)
-print("Nombre total d'opérations : ", nb_operation)
+
+nb_operation = len(tab_batch_size) * len(tab_learning_rate) * len(tab_hidden_size) * len(tab_weight_init_range) * len(tab_nb_epochs)
 
 # Chargement des données
 with gzip.open('mnist.pkl.gz', 'rb') as f:
@@ -18,7 +24,6 @@ with gzip.open('mnist.pkl.gz', 'rb') as f:
 # Préparation des jeux de données
 train_dataset = TensorDataset(data_train, label_train)
 val_dataset = TensorDataset(data_test, label_test)  # Utilisation de l'ensemble de test comme validation pour simplifier
-
 
 def charger_donnees(params):
     """
@@ -29,103 +34,80 @@ def charger_donnees(params):
     val_loader = DataLoader(val_dataset, batch_size=params['batch_size'], shuffle=False)
     return train_loader, val_loader
 
+
+# Initialiser le compteur d'itérations
+i = 1
+bool = True
+compt_repetitions = 0
+default_params = definir_hyperparametres()
+# Boucles imbriquées pour tester toutes les combinaisons d'hyperparamètres
 for batch_size in tab_batch_size:
     for nb_epochs in tab_nb_epochs:
         for learning_rate in tab_learning_rate:
             for hidden_size in tab_hidden_size:
                 for weight_init_range in tab_weight_init_range:
+                    # Vérification si les hyperparamètres sont égaux aux valeurs par défaut
+                    is_default = (batch_size == default_params['batch_size'] and
+                                  nb_epochs == default_params['nb_epochs'] and
+                                  learning_rate == default_params['learning_rate'] and
+                                  hidden_size == default_params['hidden_size'] and
+                                  weight_init_range == default_params['weight_init_range'])
 
-                    params = definir_hyperparametres(batch_size=batch_size, nb_epochs=nb_epochs, learning_rate=learning_rate,
-                                                      hidden_size=hidden_size, weight_init_range=weight_init_range)
+                    if is_default and not bool:
+                        continue
+
+
+                    print(f"Iteration {i}/{nb_operation}({i*100/nb_operation:.3f}%):")
+                    print(
+                        f"BATCH_SIZE: {batch_size}, NB_EPOCHS: {nb_epochs}, LEARNING_RATE: {learning_rate}, HIDDEN_SIZE: {hidden_size}, WEIGHT_INIT_RANGE: {weight_init_range}")
+
+                    # Chargement des hyperparamètres
+                    params = definir_hyperparametres(
+                        batch_size=batch_size,
+                        nb_epochs=nb_epochs,
+                        learning_rate=learning_rate,
+                        hidden_size=hidden_size,
+                        weight_init_range=weight_init_range
+                    )
 
                     # Initialisation du modèle
                     model = PerceptronMulticouche(params['input_size'], params['hidden_size'], params['output_size'],
-                                                   params['weight_init_range'])
+                                                  params['weight_init_range'])
 
                     # Chargement des données
                     train_loader, val_loader = charger_donnees(params)
 
                     # Entraînement du modèle
-                    model.train_and_evaluate(train_loader, val_loader, params)
+                    model.train_and_evaluate(train_loader, val_loader, params, nb_operation, "EVERYTHING")
+
+                    if is_default:
+                        bool = False
+                        compt_repetitions += 1
+
+                    # Incrémenter le compteur
+                    i += 1
 
 
-print("INFLUENCE DE BATCH_SIZE (taille des lots de données pour l'entraînement)")
 
-for batch_size in tab_batch_size:
-    print("BATCH_SIZE : ", batch_size)
-    # Chargement des hyperparamètres
-    params = definir_hyperparametres(batch_size=batch_size)
+print(f"Nombre de répétitions de l'itération par défaut : {compt_repetitions}")
+# Obtenir l'heure de fin
+heure_de_fin = datetime.now().strftime("%H:%M:%S")
 
-    # Initialisation du modèle
-    model = PerceptronMulticouche(params['input_size'], params['hidden_size'], params['output_size'], params['weight_init_range'])
+# Convertir les chaînes en objets datetime pour pouvoir calculer l'écart
+format_heure = "%H:%M:%S"
+t1 = datetime.strptime(heure_de_debut, format_heure)
+t2 = datetime.strptime(heure_de_fin, format_heure)
 
-    # Chargement des données
-    train_loader, val_loader = charger_donnees(params)
+# Si l'heure de fin est plus petite que l'heure de début, ajouter un jour entier à t2
+if t2 < t1:
+    t2 += timedelta(days=1)
 
-    # Entraînement du modèle
-    model.train_and_evaluate(train_loader, val_loader, params)
+# Calculer l'écart
+ecart = t2 - t1
 
-print("INFLUENCE DE NB_EPOCHS (nombre d'époques d'entraînement)")
+# Extraire les heures, minutes et secondes de l'écart
+heures, reste = divmod(ecart.seconds, 3600)
+minutes, secondes = divmod(reste, 60)
 
-
-for nb_epochs in tab_nb_epochs:
-    print("NB_EPOCHS : ", nb_epochs)
-    # Chargement des hyperparamètres
-    params = definir_hyperparametres(nb_epochs=nb_epochs)
-
-    # Initialisation du modèle
-    model = PerceptronMulticouche(params['input_size'], params['hidden_size'], params['output_size'], params['weight_init_range'])
-
-    # Chargement des données
-    train_loader, val_loader = charger_donnees(params)
-
-    # Entraînement du modèle
-    model.train_and_evaluate(train_loader, val_loader, params)
-
-print("INFLUENCE DE LEARNING_RATE (taux d'apprentissage pour l'optimiseur)")
-
-for learning_rate in tab_learning_rate:
-    print("LEARNING_RATE : ", learning_rate)
-    # Chargement des hyperparamètres
-    params = definir_hyperparametres(learning_rate=learning_rate)
-
-    # Initialisation du modèle
-    model = PerceptronMulticouche(params['input_size'], params['hidden_size'], params['output_size'], params['weight_init_range'])
-
-    # Chargement des données
-    train_loader, val_loader = charger_donnees(params)
-
-    # Entraînement du modèle
-    model.train_and_evaluate(train_loader, val_loader, params)
-
-print("INFLUENCE DE HIDDEN_SIZE (nombre de neurones dans la couche cachée)")
-
-for hidden_size in tab_hidden_size:
-    print("HIDDEN_SIZE : ", hidden_size)
-    # Chargement des hyperparamètres
-    params = definir_hyperparametres(hidden_size=hidden_size)
-
-    # Initialisation du modèle
-    model = PerceptronMulticouche(params['input_size'], params['hidden_size'], params['output_size'], params['weight_init_range'])
-
-    # Chargement des données
-    train_loader, val_loader = charger_donnees(params)
-
-    # Entraînement du modèle
-    model.train_and_evaluate(train_loader, val_loader, params)
-
-print("INFLUENCE DE WEIGHT_INIT_RANGE (plage d'initialisation des poids)")
-
-for weight_init_range in tab_weight_init_range:
-    print("WEIGHT_INIT_RANGE : ", weight_init_range)
-    # Chargement des hyperparamètres
-    params = definir_hyperparametres(weight_init_range=weight_init_range)
-
-    # Initialisation du modèle
-    model = PerceptronMulticouche(params['input_size'], params['hidden_size'], params['output_size'], params['weight_init_range'])
-
-    # Chargement des données
-    train_loader, val_loader = charger_donnees(params)
-
-    # Entraînement du modèle
-    model.train_and_evaluate(train_loader, val_loader, params)
+# Afficher l'écart sous forme "%H:%M:%S"
+print(f"heure de début : {heure_de_debut}, heure de fin : {heure_de_fin}, durée : {heures:02d}:{minutes:02d}:{secondes:02d}")

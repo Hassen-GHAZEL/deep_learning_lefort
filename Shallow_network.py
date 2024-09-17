@@ -33,7 +33,7 @@ class PerceptronMulticouche(nn.Module):
 
     count = 0
     column_name = ["numero epoque"] + list(definir_hyperparametres().keys()) + ["Train Loss", "Val Loss", "Accuracy"]
-    excel = ExcelManager("tableau1.xlsx", column_name)
+    excel = ExcelManager("tableau2.xlsx", column_name)
     def __init__(self, input_size, hidden_size, output_size, weight_init_range):
         super(PerceptronMulticouche, self).__init__()
 
@@ -57,7 +57,7 @@ class PerceptronMulticouche(nn.Module):
 
         for epoch in range(params['nb_epochs']):
             # Phase d'entraînement
-            print(f"Epoch {epoch + 1}/{params['nb_epochs']}")
+            ### print(f"Epoch {epoch + 1}/{params['nb_epochs']}")
             self.train()
             train_loss = 0
             for x_batch, y_batch in train_loader:
@@ -90,28 +90,21 @@ class PerceptronMulticouche(nn.Module):
             # Affichage des métriques
 
             PerceptronMulticouche.count += 1
-            #print(f"PerceptronMulticouche.count/total_call  : {PerceptronMulticouche.count}/{total_call} = {(PerceptronMulticouche.count*100/total_call):.3f}%")
+
+            """
+            print(f"PerceptronMulticouche.count/total_call  : {PerceptronMulticouche.count}/{total_call} = {(PerceptronMulticouche.count*100/total_call):.3f}%")
             print(f"Train Loss: {train_loss:.3f}, Val Loss: {val_loss:.3f}, Accuracy: {accuracy :.4f}%")
             row = [valeur for valeur in params.values()]
             row = [epoch + 1] + row + [train_loss, val_loss, accuracy]
             PerceptronMulticouche.excel.add_row(sheet_name, row)
+            """
 
             if epoch + 1 == params['nb_epochs']:
                 PerceptronMulticouche.excel.add_row(sheet_name, PerceptronMulticouche.column_name)
+                print(f"PerceptronMulticouche.count/total_call  : {PerceptronMulticouche.count}/{total_call} = {(PerceptronMulticouche.count * 100 / total_call):.3f}%")
+                print(f"Train Loss: {train_loss:.3f}, Val Loss: {val_loss:.3f}, Accuracy: {accuracy :.4f}%")
+                row = [valeur for valeur in params.values()]
+                row = [0] + row + [train_loss, val_loss, accuracy]
+                PerceptronMulticouche.excel.add_row(sheet_name, row)
 
 
-"""
-# Exemple d'utilisation
-if __name__ == "__main__":
-    # Chargement des hyperparamètres
-    params = definir_hyperparametres()
-
-    # Initialisation du modèle
-    model = PerceptronMulticouche(params['input_size'], params['hidden_size'], params['output_size'])
-
-    # Chargement des données
-    model.charger_donnees('mnist.pkl.gz', params)
-
-    # Entraînement du modèle
-    model.train_mlp(params)
-"""
