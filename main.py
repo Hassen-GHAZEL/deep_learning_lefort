@@ -1,4 +1,8 @@
+from datetime import datetime, timedelta
 from Shallow_network import *
+
+# Obtenir l'heure de début
+heure_de_debut = datetime.now().strftime("%H:%M:%S")
 
 # Définition des valeurs à tester pour chaque hyperparamètre
 tab_batch_size = list(range(1, 21, 2))
@@ -10,7 +14,6 @@ tab_weight_init_range = [(0, 0.1), (-0.1, 0.1), (-0.01, 0.01), (-0.001, 0.001), 
 
 nb_operation = len(tab_batch_size) * len(tab_learning_rate) * len(tab_hidden_size) * len(tab_weight_init_range)
 nb_operation += sum(tab_nb_epochs)
-print("Nombre total d'opérations : ", nb_operation)
 
 
 # Chargement des données
@@ -32,7 +35,7 @@ def charger_donnees(params):
 
 print("INFLUENCE DE BATCH_SIZE (taille des lots de données pour l'entraînement)")
 
-i=1
+
 for batch_size in tab_batch_size:
     print("BATCH_SIZE : ", batch_size)
     # Chargement des hyperparamètres
@@ -45,8 +48,7 @@ for batch_size in tab_batch_size:
     train_loader, val_loader = charger_donnees(params)
 
     # Entraînement du modèle
-    model.train_and_evaluate(train_loader, val_loader,i,  params, nb_operation, "batch_size")
-    i+=1
+    model.train_and_evaluate(train_loader, val_loader,  params, nb_operation, "batch_size")
 print("INFLUENCE DE NB_EPOCHS (nombre d'époques d'entraînement)")
 
 
@@ -66,6 +68,7 @@ for nb_epochs in tab_nb_epochs:
 
 print("INFLUENCE DE LEARNING_RATE (taux d'apprentissage pour l'optimiseur)")
 
+
 for learning_rate in tab_learning_rate:
     print("LEARNING_RATE : ", learning_rate)
     # Chargement des hyperparamètres
@@ -79,6 +82,7 @@ for learning_rate in tab_learning_rate:
 
     # Entraînement du modèle
     model.train_and_evaluate(train_loader, val_loader, params, nb_operation, "learning_rate")
+
 
 print("INFLUENCE DE HIDDEN_SIZE (nombre de neurones dans la couche cachée)")
 
@@ -96,6 +100,7 @@ for hidden_size in tab_hidden_size:
     # Entraînement du modèle
     model.train_and_evaluate(train_loader, val_loader, params, nb_operation, "hidden_size")
 
+
 print("INFLUENCE DE WEIGHT_INIT_RANGE (plage d'initialisation des poids)")
 
 for weight_init_range in tab_weight_init_range:
@@ -111,3 +116,26 @@ for weight_init_range in tab_weight_init_range:
 
     # Entraînement du modèle
     model.train_and_evaluate(train_loader, val_loader, params, nb_operation, "weight_init_range")
+
+
+# Obtenir l'heure de fin
+heure_de_fin = datetime.now().strftime("%H:%M:%S")
+
+# Convertir les chaînes en objets datetime pour pouvoir calculer l'écart
+format_heure = "%H:%M:%S"
+t1 = datetime.strptime(heure_de_debut, format_heure)
+t2 = datetime.strptime(heure_de_fin, format_heure)
+
+# Si l'heure de fin est plus petite que l'heure de début, ajouter un jour entier à t2
+if t2 < t1:
+    t2 += timedelta(days=1)
+
+# Calculer l'écart
+ecart = t2 - t1
+
+# Extraire les heures, minutes et secondes de l'écart
+heures, reste = divmod(ecart.seconds, 3600)
+minutes, secondes = divmod(reste, 60)
+
+# Afficher l'écart sous forme "%H:%M:%S"
+print(f"heure de début : {heure_de_debut}, heure de fin : {heure_de_fin}, durée : {heures:02d}:{minutes:02d}:{secondes:02d}")

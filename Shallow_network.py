@@ -50,13 +50,14 @@ class PerceptronMulticouche(nn.Module):
         x = self.output(x)  # Sortie linéaire
         return x
 
-    def train_and_evaluate(self, train_loader, val_loader, numero_epoch, params, total_call, sheet_name):
+    def train_and_evaluate(self, train_loader, val_loader, params, total_call, sheet_name):
         # Définir l'optimiseur et la fonction de perte
         optimizer = optim.SGD(self.parameters(), lr=params['learning_rate'])
         loss_func = nn.CrossEntropyLoss()
 
         for epoch in range(params['nb_epochs']):
             # Phase d'entraînement
+            print(f"Epoch {epoch + 1}/{params['nb_epochs']}")
             self.train()
             train_loss = 0
             for x_batch, y_batch in train_loader:
@@ -89,11 +90,10 @@ class PerceptronMulticouche(nn.Module):
             # Affichage des métriques
 
             PerceptronMulticouche.count += 1
-            print(f"PerceptronMulticouche.count/total_call  : {PerceptronMulticouche.count}/{total_call} = {(PerceptronMulticouche.count*100/total_call):.3f}%")
-            print(f"Epoch {epoch + 1}/{params['nb_epochs']}, Train Loss: {train_loss:.3f}, Val Loss: {val_loss:.3f}, Accuracy: {accuracy :.4f}%")
+            #print(f"PerceptronMulticouche.count/total_call  : {PerceptronMulticouche.count}/{total_call} = {(PerceptronMulticouche.count*100/total_call):.3f}%")
+            print(f"Train Loss: {train_loss:.3f}, Val Loss: {val_loss:.3f}, Accuracy: {accuracy :.4f}%")
             row = [valeur for valeur in params.values()]
-            row = row + [train_loss, val_loss, accuracy]
-            print(f"types row : check_list_type(row) : {check_list_type(row)}")
+            row = [epoch + 1] + row + [train_loss, val_loss, accuracy]
             PerceptronMulticouche.excel.add_row(sheet_name, row)
 
             if epoch + 1 == params['nb_epochs']:
