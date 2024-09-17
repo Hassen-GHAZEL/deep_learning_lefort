@@ -24,6 +24,7 @@ class ExcelManager:
     def add_row(self, sheet_name: str, row_data: list):
         """Ajoute une nouvelle ligne à la feuille spécifiée. Si la feuille n'existe pas, elle est créée avec les titres de colonne."""
         if sheet_name not in self.sheet_titles:
+            print(f"typeof(self.column_titles) : {type(self.column_titles)}")
             sheet = self.workbook.create_sheet(title=sheet_name)
             sheet.append(self.column_titles)
             self.sheet_titles.append(sheet_name)
@@ -32,10 +33,13 @@ class ExcelManager:
 
         # Traitement des données de la ligne : remplacer '.' par ',' uniquement pour les floats avec un point
         processed_row = [
-            str(item).replace('.', ',') if self.is_float_and_contains_dot(item) else item
+            str(item).replace('.', ',') if isinstance(item, tuple) else str(item).replace('.',
+                                                                                          ',') if self.is_float_and_contains_dot(
+                item) else item
             for item in row_data
         ]
 
+        print(f"type(processed_row) {type(processed_row)}, processed_row : {processed_row}")
         sheet.append(processed_row)
         self.save()
 

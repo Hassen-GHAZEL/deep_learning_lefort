@@ -32,6 +32,7 @@ def charger_donnees(params):
 
 print("INFLUENCE DE BATCH_SIZE (taille des lots de données pour l'entraînement)")
 
+i=1
 for batch_size in tab_batch_size:
     print("BATCH_SIZE : ", batch_size)
     # Chargement des hyperparamètres
@@ -44,8 +45,8 @@ for batch_size in tab_batch_size:
     train_loader, val_loader = charger_donnees(params)
 
     # Entraînement du modèle
-    model.train_and_evaluate(train_loader, val_loader, params, nb_operation, "batch_size")
-
+    model.train_and_evaluate(train_loader, val_loader,i,  params, nb_operation, "batch_size")
+    i+=1
 print("INFLUENCE DE NB_EPOCHS (nombre d'époques d'entraînement)")
 
 

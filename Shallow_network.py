@@ -21,14 +21,19 @@ def definir_hyperparametres(batch_size=5, nb_epochs=10, learning_rate=0.0001, in
         'weight_init_range': weight_init_range  # Plage d'initialisation des poids
     }
     return params
+def check_list_type(variable):
+    if isinstance(variable, list):  # Vérifie si c'est une liste
+        if all(isinstance(i, list) for i in variable):  # Vérifie si tous les éléments sont des listes
+            return "C'est une liste de listes"
+        return "C'est une liste"
+    return "Ce n'est pas une liste"
 
 # Définition de la classe pour le modèle de réseau de neurones
 class PerceptronMulticouche(nn.Module):
 
     count = 0
-    column_name = ["batch_size", "nb_epochs", "learning_rate", "input_size", "hidden_size", "output_size", "weight_init_range", "train_loss", "val_loss", "accuracy"]
-    column_name = column_name + ["Train Loss", "Val Loss", "Accuracy"]
-    excel = ExcelManager("tableau1.xlsx", definir_hyperparametres().keys())
+    column_name = ["numero epoque"] + list(definir_hyperparametres().keys()) + ["Train Loss", "Val Loss", "Accuracy"]
+    excel = ExcelManager("tableau1.xlsx", column_name)
     def __init__(self, input_size, hidden_size, output_size, weight_init_range):
         super(PerceptronMulticouche, self).__init__()
 
@@ -45,7 +50,7 @@ class PerceptronMulticouche(nn.Module):
         x = self.output(x)  # Sortie linéaire
         return x
 
-    def train_and_evaluate(self, train_loader, val_loader, params, total_call, sheet_name):
+    def train_and_evaluate(self, train_loader, val_loader, numero_epoch, params, total_call, sheet_name):
         # Définir l'optimiseur et la fonction de perte
         optimizer = optim.SGD(self.parameters(), lr=params['learning_rate'])
         loss_func = nn.CrossEntropyLoss()
@@ -86,10 +91,15 @@ class PerceptronMulticouche(nn.Module):
             PerceptronMulticouche.count += 1
             print(f"PerceptronMulticouche.count/total_call  : {PerceptronMulticouche.count}/{total_call} = {(PerceptronMulticouche.count*100/total_call):.3f}%")
             print(f"Epoch {epoch + 1}/{params['nb_epochs']}, Train Loss: {train_loss:.3f}, Val Loss: {val_loss:.3f}, Accuracy: {accuracy :.4f}%")
+            row = [valeur for valeur in params.values()]
+            row = row + [train_loss, val_loss, accuracy]
+            print(f"types row : check_list_type(row) : {check_list_type(row)}")
+            PerceptronMulticouche.excel.add_row(sheet_name, row)
+
             if epoch + 1 == params['nb_epochs']:
-                row = [valeur for valeur in params.values()]
-                row = row + [train_loss, val_loss, accuracy]
-                PerceptronMulticouche.excel.add_row(sheet_name, row)
+                PerceptronMulticouche.excel.add_row(sheet_name, PerceptronMulticouche.column_name)
+
+
 """
 # Exemple d'utilisation
 if __name__ == "__main__":
