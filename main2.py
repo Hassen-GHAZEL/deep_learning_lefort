@@ -6,6 +6,7 @@ from Shallow_network import *
 
 # Obtenir l'heure de début
 heure_de_debut = datetime.now().strftime("%H:%M:%S")
+print(f"heure de début : {heure_de_debut}")
 
 # Définition des valeurs à tester pour chaque hyperparamètre
 tab_batch_size = list(range(1, 21, 2))
