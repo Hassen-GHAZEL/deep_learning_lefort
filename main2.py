@@ -40,12 +40,17 @@ i = 1
 bool = True
 compt_repetitions = 0
 default_params = definir_hyperparametres()
+print(f"PerceptronMulticouche.last_row : {PerceptronMulticouche.last_row}")
 # Boucles imbriquées pour tester toutes les combinaisons d'hyperparamètres
-for batch_size in tab_batch_size:
-    for nb_epochs in tab_nb_epochs:
+for weight_init_range in tab_weight_init_range:
+    for hidden_size in tab_hidden_size:
         for learning_rate in tab_learning_rate:
-            for hidden_size in tab_hidden_size:
-                for weight_init_range in tab_weight_init_range:
+            for nb_epochs in tab_nb_epochs:
+                for batch_size in tab_batch_size:
+                    if i<=PerceptronMulticouche.last_row:
+                        print(f"iteration {i} deja faite")
+                        i+=1
+                        continue
                     # Vérification si les hyperparamètres sont égaux aux valeurs par défaut
                     is_default = (batch_size == default_params['batch_size'] and
                                   nb_epochs == default_params['nb_epochs'] and
@@ -78,7 +83,7 @@ for batch_size in tab_batch_size:
                     train_loader, val_loader = charger_donnees(params)
 
                     # Entraînement du modèle
-                    model.train_and_evaluate(train_loader, val_loader, params, nb_operation, "EVERYTHING")
+                    model.train_and_evaluate(train_loader, val_loader, i, params, nb_operation, "EVERYTHING")
 
                     if is_default:
                         bool = False

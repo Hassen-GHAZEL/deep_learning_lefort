@@ -40,6 +40,30 @@ class ExcelManager:
         sheet.append(processed_row)
         self.save()
 
+    def get_last_row_first_column(self, sheet_name: str) -> int:
+        """Vérifie la dernière ligne du sheet spécifié et renvoie la première colonne de cette ligne en int.
+        Si la conversion échoue ou si le sheet n'existe pas, retourne 0."""
+
+        # Si la feuille n'existe pas, retourner 0
+        if sheet_name not in self.sheet_titles:
+            return 0
+
+        # Récupérer la feuille
+        sheet = self.workbook[sheet_name]
+
+        # Si la feuille est vide ou ne contient que l'en-tête, retourner 0
+        if sheet.max_row < 2:  # max_row donne la dernière ligne non vide, 1 pour en-tête
+            return 0
+
+        # Récupérer la valeur de la première colonne de la dernière ligne
+        last_row_value = sheet.cell(row=sheet.max_row, column=1).value
+
+        # Tenter de convertir la valeur en entier, retourner 0 en cas d'échec
+        try:
+            return int(last_row_value)
+        except (ValueError, TypeError):
+            return 0
+
     @staticmethod
     def is_float_and_contains_dot(value):
         """Vérifie si une valeur est un float (ou peut être convertie en float) et contient un point décimal."""

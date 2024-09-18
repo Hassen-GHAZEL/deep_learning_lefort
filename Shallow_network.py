@@ -34,12 +34,14 @@ class PerceptronMulticouche(nn.Module):
     count = 0
     column_name = ["numero epoque"] + list(definir_hyperparametres().keys()) + ["Train Loss", "Val Loss", "Accuracy"]
     excel = ExcelManager("tableau2.xlsx", column_name)
+    last_row = excel.get_last_row_first_column("EVERYTHING")
     def __init__(self, input_size, hidden_size, output_size, weight_init_range):
         super(PerceptronMulticouche, self).__init__()
 
         # Définition des couches du réseau
         self.hidden = nn.Linear(input_size, hidden_size)
         self.output = nn.Linear(hidden_size, output_size)
+
 
         # Initialisation des poids
         nn.init.uniform_(self.hidden.weight, *weight_init_range)
@@ -50,7 +52,7 @@ class PerceptronMulticouche(nn.Module):
         x = self.output(x)  # Sortie linéaire
         return x
 
-    def train_and_evaluate(self, train_loader, val_loader, params, total_call, sheet_name):
+    def train_and_evaluate(self, train_loader, val_loader, row_number, params, total_call, sheet_name):
         # Définir l'optimiseur et la fonction de perte
         optimizer = optim.SGD(self.parameters(), lr=params['learning_rate'])
         loss_func = nn.CrossEntropyLoss()
@@ -100,11 +102,11 @@ class PerceptronMulticouche(nn.Module):
             """
 
             if epoch + 1 == params['nb_epochs']:
-                PerceptronMulticouche.excel.add_row(sheet_name, PerceptronMulticouche.column_name)
+                #PerceptronMulticouche.excel.add_row(sheet_name, PerceptronMulticouche.column_name)
                 print(f"PerceptronMulticouche.count/total_call  : {PerceptronMulticouche.count}/{total_call} = {(PerceptronMulticouche.count * 100 / total_call):.3f}%")
                 print(f"Train Loss: {train_loss:.3f}, Val Loss: {val_loss:.3f}, Accuracy: {accuracy :.4f}%")
                 row = [valeur for valeur in params.values()]
-                row = [0] + row + [train_loss, val_loss, accuracy]
+                row = [row_number] + row + [train_loss, val_loss, accuracy]
                 PerceptronMulticouche.excel.add_row(sheet_name, row)
 
 
