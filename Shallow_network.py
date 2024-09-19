@@ -30,40 +30,58 @@ def check_list_type(variable):
 
 # Définition de la classe pour le modèle de réseau de neurones
 class PerceptronMulticouche(nn.Module):
-
     count = 0
     column_name = ["numero epoque"] + list(definir_hyperparametres().keys()) + ["Train Loss", "Val Loss", "Accuracy"]
     excel = ExcelManager("tableau2.xlsx", column_name)
     last_row = excel.get_last_row_first_column("EVERYTHING")
-    def __init__(self, input_size, hidden_size, output_size, weight_init_range):
+
+    def __init__(self, input_size, hidden_size, output_size, weight_init_range, use_gpu=False):
         super(PerceptronMulticouche, self).__init__()
+
+        self.use_gpu = use_gpu  # Ajout du booléen pour indiquer si on utilise le GPU
 
         # Définition des couches du réseau
         self.hidden = nn.Linear(input_size, hidden_size)
         self.output = nn.Linear(hidden_size, output_size)
 
-
         # Initialisation des poids
         nn.init.uniform_(self.hidden.weight, *weight_init_range)
         nn.init.uniform_(self.output.weight, *weight_init_range)
 
+        # Si GPU doit être utilisé, déplacer le modèle sur GPU
+        if self.use_gpu and torch.cuda.is_available():
+            self.cuda()
+
+    @staticmethod
+    def check_gpu():
+        if torch.cuda.is_available():
+            gpu_device = torch.cuda.current_device()
+            gpu_name = torch.cuda.get_device_name(gpu_device)
+            return f"GPU is available: {gpu_name}, currently using GPU: {gpu_device}"
+        else:
+            return "No GPU available, using CPU"
+
     def forward(self, x):
+        if self.use_gpu and torch.cuda.is_available():
+            x = x.cuda()  # Déplacer le tenseur sur GPU si nécessaire
         x = torch.relu(self.hidden(x))  # Fonction d'activation ReLU pour la couche cachée
         x = self.output(x)  # Sortie linéaire
         return x
 
     def train_and_evaluate(self, train_loader, val_loader, row_number, params, total_call, sheet_name):
-        # Définir l'optimiseur et la fonction de perte
         optimizer = optim.SGD(self.parameters(), lr=params['learning_rate'])
         loss_func = nn.CrossEntropyLoss()
 
         for epoch in range(params['nb_epochs']):
-            # Phase d'entraînement
-            ### print(f"Epoch {epoch + 1}/{params['nb_epochs']}")
             self.train()
             train_loss = 0
             for x_batch, y_batch in train_loader:
                 optimizer.zero_grad()
+
+                # Déplacer les données sur GPU si nécessaire
+                if self.use_gpu and torch.cuda.is_available():
+                    x_batch, y_batch = x_batch.cuda(), y_batch.cuda()
+
                 y_pred = self.forward(x_batch)
                 loss = loss_func(y_pred, torch.argmax(y_batch, dim=1))
                 loss.backward()
@@ -72,16 +90,19 @@ class PerceptronMulticouche(nn.Module):
 
             train_loss /= len(train_loader)
 
-            # Phase de validation
             self.eval()
             val_loss = 0
             correct = 0
             total = 0
             with torch.no_grad():
                 for x_val, y_val in val_loader:
+                    if self.use_gpu and torch.cuda.is_available():
+                        x_val, y_val = x_val.cuda(), y_val.cuda()
+
                     y_val_pred = self.forward(x_val)
                     loss = loss_func(y_val_pred, torch.argmax(y_val, dim=1))
                     val_loss += loss.item()
+
                     _, predicted = torch.max(y_val_pred, 1)
                     correct += (predicted == torch.argmax(y_val, dim=1)).sum().item()
                     total += y_val.size(0)
@@ -89,8 +110,7 @@ class PerceptronMulticouche(nn.Module):
             val_loss /= len(val_loader)
             accuracy = correct * 100 / total
 
-            # Affichage des métriques
-
+            # Affichage des métriques et ajout à Excel
             PerceptronMulticouche.count += 1
 
             """
@@ -102,7 +122,6 @@ class PerceptronMulticouche(nn.Module):
             """
 
             if epoch + 1 == params['nb_epochs']:
-                #PerceptronMulticouche.excel.add_row(sheet_name, PerceptronMulticouche.column_name)
                 print(f"PerceptronMulticouche.count/total_call  : {PerceptronMulticouche.count}/{total_call} = {(PerceptronMulticouche.count * 100 / total_call):.3f}%")
                 print(f"Train Loss: {train_loss:.3f}, Val Loss: {val_loss:.3f}, Accuracy: {accuracy :.4f}%")
                 row = [valeur for valeur in params.values()]
