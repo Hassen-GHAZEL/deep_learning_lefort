@@ -113,7 +113,7 @@ for weight_init_range in tab_weight_init_range:
 
                     # Initialisation du modèle
                     model = PerceptronMulticouche(params['input_size'], params['hidden_size'], params['output_size'],
-                                                  params['weight_init_range'], use_gpu=True)
+                                                  params['weight_init_range'])
 
                     # Chargement des données
                     train_loader, val_loader = charger_donnees(params)
@@ -122,7 +122,7 @@ for weight_init_range in tab_weight_init_range:
                     model.train_and_evaluate(train_loader, val_loader, i, params, nb_operation, "EVERYTHING")
 
                     heure_fin_iteration = datetime.now().strftime("%H:%M:%S")
-
+                    print(f"heure de fin iteration : {heure_fin_iteration}")
                     print(f"duree iteration : {calculer_ecart_temps(heure_debut_iteration, heure_fin_iteration)}")
 
                     if is_default:

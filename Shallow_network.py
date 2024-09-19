@@ -29,16 +29,19 @@ def check_list_type(variable):
     return "Ce n'est pas une liste"
 
 # Définition de la classe pour le modèle de réseau de neurones
+# Définition de la classe pour le modèle de réseau de neurones
+# Définition de la classe pour le modèle de réseau de neurones
 class PerceptronMulticouche(nn.Module):
     count = 0
     column_name = ["numero epoque"] + list(definir_hyperparametres().keys()) + ["Train Loss", "Val Loss", "Accuracy"]
     excel = ExcelManager("tableau2.xlsx", column_name)
     last_row = excel.get_last_row_first_column("EVERYTHING")
 
-    def __init__(self, input_size, hidden_size, output_size, weight_init_range, use_gpu=False):
+    def __init__(self, input_size, hidden_size, output_size, weight_init_range):
         super(PerceptronMulticouche, self).__init__()
 
-        self.use_gpu = use_gpu  # Ajout du booléen pour indiquer si on utilise le GPU
+        # Détection automatique du GPU. Si disponible, use_gpu est défini à True.
+        self.use_gpu = torch.cuda.is_available()
 
         # Définition des couches du réseau
         self.hidden = nn.Linear(input_size, hidden_size)
@@ -48,12 +51,15 @@ class PerceptronMulticouche(nn.Module):
         nn.init.uniform_(self.hidden.weight, *weight_init_range)
         nn.init.uniform_(self.output.weight, *weight_init_range)
 
-        # Si GPU doit être utilisé, déplacer le modèle sur GPU
-        if self.use_gpu and torch.cuda.is_available():
+        # Si GPU est disponible, déplacer le modèle sur GPU
+        if self.use_gpu:
             self.cuda()
 
     @staticmethod
     def check_gpu():
+        """
+        Méthode statique pour vérifier si un GPU est disponible et obtenir son nom.
+        """
         if torch.cuda.is_available():
             gpu_device = torch.cuda.current_device()
             gpu_name = torch.cuda.get_device_name(gpu_device)
@@ -62,7 +68,11 @@ class PerceptronMulticouche(nn.Module):
             return "No GPU available, using CPU"
 
     def forward(self, x):
-        if self.use_gpu and torch.cuda.is_available():
+        """
+        Fonction de propagation avant du réseau.
+        Si un GPU est disponible, les tenseurs sont déplacés sur le GPU.
+        """
+        if self.use_gpu:
             x = x.cuda()  # Déplacer le tenseur sur GPU si nécessaire
         x = torch.relu(self.hidden(x))  # Fonction d'activation ReLU pour la couche cachée
         x = self.output(x)  # Sortie linéaire
@@ -79,7 +89,7 @@ class PerceptronMulticouche(nn.Module):
                 optimizer.zero_grad()
 
                 # Déplacer les données sur GPU si nécessaire
-                if self.use_gpu and torch.cuda.is_available():
+                if self.use_gpu:
                     x_batch, y_batch = x_batch.cuda(), y_batch.cuda()
 
                 y_pred = self.forward(x_batch)
@@ -96,7 +106,7 @@ class PerceptronMulticouche(nn.Module):
             total = 0
             with torch.no_grad():
                 for x_val, y_val in val_loader:
-                    if self.use_gpu and torch.cuda.is_available():
+                    if self.use_gpu:
                         x_val, y_val = x_val.cuda(), y_val.cuda()
 
                     y_val_pred = self.forward(x_val)
@@ -116,7 +126,7 @@ class PerceptronMulticouche(nn.Module):
             """
             print(f"PerceptronMulticouche.count/total_call  : {PerceptronMulticouche.count}/{total_call} = {(PerceptronMulticouche.count*100/total_call):.3f}%")
             print(f"Train Loss: {train_loss:.3f}, Val Loss: {val_loss:.3f}, Accuracy: {accuracy :.4f}%")
-            row = [valeur for valeur in params.values()]
+            row = [valeur for valeur in params.values()]  # Correction ici
             row = [epoch + 1] + row + [train_loss, val_loss, accuracy]
             PerceptronMulticouche.excel.add_row(sheet_name, row)
             """
@@ -124,8 +134,9 @@ class PerceptronMulticouche(nn.Module):
             if epoch + 1 == params['nb_epochs']:
                 print(f"PerceptronMulticouche.count/total_call  : {PerceptronMulticouche.count}/{total_call} = {(PerceptronMulticouche.count * 100 / total_call):.3f}%")
                 print(f"Train Loss: {train_loss:.3f}, Val Loss: {val_loss:.3f}, Accuracy: {accuracy :.4f}%")
-                row = [valeur for valeur in params.values()]
+                row = [valeur for valeur in params.values()]  # Correction ici
                 row = [row_number] + row + [train_loss, val_loss, accuracy]
                 PerceptronMulticouche.excel.add_row(sheet_name, row)
+
 
 
