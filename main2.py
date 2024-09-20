@@ -11,12 +11,13 @@ print(PerceptronMulticouche.check_gpu())
 heure_de_debut = datetime.now().strftime("%H:%M:%S")
 print(f"heure de début : {heure_de_debut}")
 
+
 # Définition des valeurs à tester pour chaque hyperparamètre
-tab_batch_size = list(range(1, 21, 2))
-tab_nb_epochs = list(range(1, 21, 2))
-tab_learning_rate = [0.0001, 0.001, 0.01, 0.1, 0.25, 0.4, 0.5, 0.6, 0.75, 0.9, 1.0]
+tab_batch_size = [2, 4, 8, 16, 32, 64, 128]
+tab_nb_epochs = [1, 5, 10, 15, 20]
+tab_learning_rate = [0.001, 0.01, 0.1, 0.25, 0.5, 0.75]
 tab_hidden_size = [32, 64, 128, 256, 512]
-tab_weight_init_range = [(0, 0.1), (-0.1, 0.1), (-0.01, 0.01), (-0.001, 0.001), (-0.0001, 0.0001)]
+tab_weight_init_range = [(-1, 1), (-0.1, 0.1), (-0.01, 0.01), (-0.001, 0.001), (-0.0001, 0.0001)]
 
 
 nb_operation = len(tab_batch_size) * len(tab_learning_rate) * len(tab_hidden_size) * len(tab_weight_init_range) * len(tab_nb_epochs)
