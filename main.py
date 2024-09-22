@@ -1,141 +1,59 @@
-from datetime import datetime, timedelta
+import gzip  # Assurez-vous d'importer le module gzip
 from Shallow_network import *
-
-# Obtenir l'heure de début
-heure_de_debut = datetime.now().strftime("%H:%M:%S")
-
-# Définition des valeurs à tester pour chaque hyperparamètre
-tab_batch_size = [2, 4, 8, 16, 32, 64, 128]
-tab_nb_epochs = [1, 5, 10, 15, 20]
-tab_learning_rate = [0.001, 0.01, 0.1, 0.25, 0.5, 0.75]
-tab_hidden_size = [32, 64, 128, 256, 512]
-tab_weight_init_range = [(-1, 1), (-0.1, 0.1), (-0.01, 0.01), (-0.001, 0.001), (-0.0001, 0.0001)]
+from torch.utils.data import TensorDataset
+from Excel import ExcelManager
+from tools import *
+from constantes import *
+from datetime import datetime
 
 
-nb_operation = len(tab_batch_size) * len(tab_learning_rate) * len(tab_hidden_size) * len(tab_weight_init_range)
-nb_operation += sum(tab_nb_epochs)
+def evaluer_hyperparametre(nom, valeurs):
+    global excel
+    print(f"Influence de {nom} sur le modèle :")
+    for valeur in valeurs:
+        heure_debut_iteration = datetime.now().strftime("%H:%M:%S")
+        print(f"\t{nom} : {valeur}")
 
+        params = definir_hyperparametres(**{nom.lower(): valeur})
+        print(f"\tHyperparamètres : {params}")
+        model = PerceptronMulticouche(params['input_size'], params['hidden_size'], params['output_size'],
+                                      params['weight_init_range'], excel)
+        train_loader, val_loader = charger_donnees(train_dataset, val_dataset, params)
+        model.train_and_evaluate(nom, train_loader, val_loader, params, is_nested=False)
 
-# Chargement des données
-with gzip.open('mnist.pkl.gz', 'rb') as f:
-    (data_train, label_train), (data_test, label_test) = torch.load(f)
+        heure_fin_iteration = datetime.now().strftime("%H:%M:%S")
+        ecart = calculer_ecart_temps(heure_debut_iteration, heure_fin_iteration)
+        print(f"\tDurée de cette itération ({nom}={valeur}): {ecart}")
 
-# Préparation des jeux de données
-train_dataset = TensorDataset(data_train, label_train)
-val_dataset = TensorDataset(data_test, label_test)  # Utilisation de l'ensemble de test comme validation pour simplifier
+if __name__ == '__main__':
 
-def charger_donnees(params):
-    """
-    Fonction pour charger les données et créer les DataLoader.
-    """
-    # Création des DataLoader
-    train_loader = DataLoader(train_dataset, batch_size=params['batch_size'], shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=params['batch_size'], shuffle=False)
-    return train_loader, val_loader
-
-print("INFLUENCE DE BATCH_SIZE (taille des lots de données pour l'entraînement)")
-
-
-for batch_size in tab_batch_size:
-    print("BATCH_SIZE : ", batch_size)
-    # Chargement des hyperparamètres
-    params = definir_hyperparametres(batch_size=batch_size)
-
-    # Initialisation du modèle
-    model = PerceptronMulticouche(params['input_size'], params['hidden_size'], params['output_size'], params['weight_init_range'])
+    # Obtenir l'heure de début
+    heure_de_debut = datetime.now().strftime("%H:%M:%S")
 
     # Chargement des données
-    train_loader, val_loader = charger_donnees(params)
+    with gzip.open('mnist.pkl.gz', 'rb') as f:
+        (data_train, label_train), (data_test, label_test) = torch.load(f)
 
-    # Entraînement du modèle
-    model.train_and_evaluate(train_loader, val_loader,  params, nb_operation, "batch_size")
-print("INFLUENCE DE NB_EPOCHS (nombre d'époques d'entraînement)")
+    # Préparation des jeux de données
+    train_dataset = TensorDataset(data_train, label_train)
+    val_dataset = TensorDataset(data_test, label_test)
 
+    column_names = ["numéro epoch"] + list(definir_hyperparametres().keys()) + ["Training Loss", "Validation Loss", "Accuracy"]
 
-for nb_epochs in tab_nb_epochs:
-    print("NB_EPOCHS : ", nb_epochs)
-    # Chargement des hyperparamètres
-    params = definir_hyperparametres(nb_epochs=nb_epochs)
+    excel = ExcelManager("tableau.xlsx", column_names)
 
-    # Initialisation du modèle
-    model = PerceptronMulticouche(params['input_size'], params['hidden_size'], params['output_size'], params['weight_init_range'])
+    # Définition des valeurs à tester pour chaque hyperparamètre
+    evaluer_hyperparametre("BATCH_SIZE", tab_batch_size)
+    evaluer_hyperparametre("NB_EPOCHS", tab_nb_epochs)
+    #evaluer_hyperparametre("LEARNING_RATE", tab_learning_rate)
+    #evaluer_hyperparametre("HIDDEN_SIZE", tab_hidden_size)
+    #evaluer_hyperparametre("WEIGHT_INIT_RANGE", tab_weight_init_range)
 
-    # Chargement des données
-    train_loader, val_loader = charger_donnees(params)
+    # Obtenir l'heure de fin
+    heure_de_fin = datetime.now().strftime("%H:%M:%S")
 
-    # Entraînement du modèle
-    model.train_and_evaluate(train_loader, val_loader, params, nb_operation, "nb_epochs")
-
-print("INFLUENCE DE LEARNING_RATE (taux d'apprentissage pour l'optimiseur)")
-
-
-for learning_rate in tab_learning_rate:
-    print("LEARNING_RATE : ", learning_rate)
-    # Chargement des hyperparamètres
-    params = definir_hyperparametres(learning_rate=learning_rate)
-
-    # Initialisation du modèle
-    model = PerceptronMulticouche(params['input_size'], params['hidden_size'], params['output_size'], params['weight_init_range'])
-
-    # Chargement des données
-    train_loader, val_loader = charger_donnees(params)
-
-    # Entraînement du modèle
-    model.train_and_evaluate(train_loader, val_loader, params, nb_operation, "learning_rate")
-
-
-print("INFLUENCE DE HIDDEN_SIZE (nombre de neurones dans la couche cachée)")
-
-for hidden_size in tab_hidden_size:
-    print("HIDDEN_SIZE : ", hidden_size)
-    # Chargement des hyperparamètres
-    params = definir_hyperparametres(hidden_size=hidden_size)
-
-    # Initialisation du modèle
-    model = PerceptronMulticouche(params['input_size'], params['hidden_size'], params['output_size'], params['weight_init_range'])
-
-    # Chargement des données
-    train_loader, val_loader = charger_donnees(params)
-
-    # Entraînement du modèle
-    model.train_and_evaluate(train_loader, val_loader, params, nb_operation, "hidden_size")
-
-
-print("INFLUENCE DE WEIGHT_INIT_RANGE (plage d'initialisation des poids)")
-
-for weight_init_range in tab_weight_init_range:
-    print("WEIGHT_INIT_RANGE : ", weight_init_range)
-    # Chargement des hyperparamètres
-    params = definir_hyperparametres(weight_init_range=weight_init_range)
-
-    # Initialisation du modèle
-    model = PerceptronMulticouche(params['input_size'], params['hidden_size'], params['output_size'], params['weight_init_range'])
-
-    # Chargement des données
-    train_loader, val_loader = charger_donnees(params)
-
-    # Entraînement du modèle
-    model.train_and_evaluate(train_loader, val_loader, params, nb_operation, "weight_init_range")
-
-
-# Obtenir l'heure de fin
-heure_de_fin = datetime.now().strftime("%H:%M:%S")
-
-# Convertir les chaînes en objets datetime pour pouvoir calculer l'écart
-format_heure = "%H:%M:%S"
-t1 = datetime.strptime(heure_de_debut, format_heure)
-t2 = datetime.strptime(heure_de_fin, format_heure)
-
-# Si l'heure de fin est plus petite que l'heure de début, ajouter un jour entier à t2
-if t2 < t1:
-    t2 += timedelta(days=1)
-
-# Calculer l'écart
-ecart = t2 - t1
-
-# Extraire les heures, minutes et secondes de l'écart
-heures, reste = divmod(ecart.seconds, 3600)
-minutes, secondes = divmod(reste, 60)
-
-# Afficher l'écart sous forme "%H:%M:%S"
-print(f"heure de début : {heure_de_debut}, heure de fin : {heure_de_fin}, durée : {heures:02d}:{minutes:02d}:{secondes:02d}")
+    # Calculer et afficher le temps total d'exécution
+    duree_totale = calculer_ecart_temps(heure_de_debut, heure_de_fin)
+    msg = f"heure de début : {heure_de_debut}, heure de fin : {heure_de_fin}, durée totale : {duree_totale} + 01:19:30 = ?"
+    create_or_overwrite_file("duree_totale.txt", msg)
+    shutdown_system()

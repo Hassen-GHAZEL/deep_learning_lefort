@@ -64,6 +64,13 @@ class ExcelManager:
         except (ValueError, TypeError):
             return 0
 
+    def count_rows(self, sheet_name: str) -> int:
+        """Renvoie le nombre total de lignes dans la feuille spécifiée, y compris les en-têtes."""
+        if sheet_name in self.sheet_titles:
+            sheet = self.workbook[sheet_name]
+            return sheet.max_row  # max_row retourne le nombre de lignes non vides
+        return 0
+
     @staticmethod
     def is_float_and_contains_dot(value):
         """Vérifie si une valeur est un float (ou peut être convertie en float) et contient un point décimal."""
