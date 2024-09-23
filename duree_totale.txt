@@ -1,1 +1,1 @@
-heure de début : 11:17:39, heure de fin : 11:55:17, durée totale : 00:37:38 + 01:19:30 = ?
+program a commencer a 15:40:44 et a fini a 20:31:47 et la temperature du GPU est de 65.0°C

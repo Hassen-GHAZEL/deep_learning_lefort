@@ -10,7 +10,7 @@ while True:
         break # Arrêter la boucle si la température dépasse 65°C
     time.sleep(60)  # Attendre 1 minute avant de vérifier à nouveau la température
 
-msg = f"program a commencer a 18:33:56 et a fini a {datetime.now().strftime('%H:%M:%S')} et la temperature du GPU est de {temperature}°C"
+msg = f"program a commencer a 15:40:44 et a fini a {datetime.now().strftime('%H:%M:%S')} et la temperature du GPU est de {temperature}°C"
 create_or_overwrite_file("duree_totale.txt", msg)
 shutdown_system()
 """
