@@ -92,6 +92,6 @@ if __name__ == '__main__':
                     # Incrémenter le compteur
                     i += 1
     heure_de_fin = datetime.now().strftime("%H:%M:%S")
-    msg = f"heure de debut : {heure_de_debut}, heure de fin : {heure_de_fin}, duree totale : {calculer_ecart_temps(heure_de_debut, heure_de_fin)}"
+    msg = f"576 - 600 heure de debut : {heure_de_debut}, heure de fin : {heure_de_fin}, duree totale : {calculer_ecart_temps(heure_de_debut, heure_de_fin)}"
     create_or_overwrite_file("duree_totale_combinaison.txt", msg)
     #shutdown_system()
