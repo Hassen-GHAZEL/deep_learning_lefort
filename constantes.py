@@ -1,12 +1,18 @@
 import numpy as np
 
+tab_batch_size = [8, 16, 32, 64, 128]
+tab_learning_rate = [0.00001, 0.0001, 0.5, 0.6, 0.75, 1, 2]
+tab_hidden_size = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
+tab_weight_init_range = [(-0.0001, 0.0001), (-0.001, 0.001)]
+
+"""
 tab_batch_size = [2, 3, 4, 5, 6]
 tab_learning_rate = [0.001, 0.01, 0.1, 0.2, 0.25]
 tab_hidden_size = [1024, 2048, 4096, 8192]
 tab_weight_init_range = [(-0.01, 0.01), (-0.1, 0.1), (-1, 1), (-2, 2), (-5, 5), (-10, 10)]
 
 tab_nb_epochs = [1, 2, 3, 5, 7, 10, 15, 20, 25, 30]
-
+"""
 """
 tab_batch_size = [2, 4, 8, 16, 32, 64, 128]
 tab_learning_rate = [0.00001, 0.0001, 0.001, 0.01, 0.1, 0.2, 0.25, 0.5, 0.6, 0.75, 1, 2]

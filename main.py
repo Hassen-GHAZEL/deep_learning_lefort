@@ -51,9 +51,9 @@ def charger_donnees(train_dataset, test_dataset, params):
 
 
 if __name__ == '__main__':
-    # Obtenir l'heure de début
+    # # Obtenir l'heure de début
     enregistrer_debut_programme()
-
+    #
     # Chargement des données
     with gzip.open('mnist.pkl.gz', 'rb') as f:
         (data_train, label_train), (data_test, label_test) = torch.load(f)
@@ -69,15 +69,15 @@ if __name__ == '__main__':
     # Initialisation de la gestion du fichier Excel
     excel = ExcelManager("shallow_network.xlsx", column_names)
 
+
     # Définition des valeurs à tester pour chaque hyperparamètre
     evaluer_hyperparametre("BATCH_SIZE", tab_batch_size)
-    evaluer_hyperparametre("NB_EPOCHS", tab_nb_epochs)
     evaluer_hyperparametre("LEARNING_RATE", tab_learning_rate)
     evaluer_hyperparametre("HIDDEN_SIZE", tab_hidden_size)
     evaluer_hyperparametre("WEIGHT_INIT_RANGE", tab_weight_init_range)
 
-    # Obtenir l'heure de fin
-    heure_de_fin = datetime.now().strftime("%H:%M:%S")
+
+
 
     # Calculer et afficher le temps total d'exécution
     enregistrer_fin_programme()
