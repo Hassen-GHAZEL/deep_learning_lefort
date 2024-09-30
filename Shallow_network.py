@@ -4,6 +4,7 @@ import torch.optim as optim
 from datetime import datetime
 from tools import calculer_ecart_temps
 
+
 class PerceptronMulticouche(nn.Module):
 
     def __init__(self, input_size, hidden_size, output_size, weight_init_range, excel):
@@ -37,7 +38,7 @@ class PerceptronMulticouche(nn.Module):
         x = self.output(x)  # Sortie linéaire
         return x
 
-    def train_and_evaluate(self, sheet_name, train_loader, test_loader, params, is_nested=True):
+    def train_and_evaluate(self, sheet_name, train_loader, val_loader, test_loader, params, is_nested=True):
         optimizer = optim.SGD(self.parameters(), lr=params['learning_rate'])
         loss_func = nn.CrossEntropyLoss()
 
@@ -45,6 +46,8 @@ class PerceptronMulticouche(nn.Module):
             debut_iteration = datetime.now().strftime("%H:%M:%S")
             if not is_nested:
                 print(f"\t\tEpoch {epoch + 1}/{params['nb_epochs']} : {debut_iteration}")
+
+            # Phase d'entraînement
             self.train()
             train_loss = 0
             for x_batch, y_batch in train_loader:
@@ -62,8 +65,22 @@ class PerceptronMulticouche(nn.Module):
 
             train_loss /= len(train_loader)
 
+            # Phase de validation
             self.eval()
-            test_loss = 0  # Changer le nom de la variable ici
+            val_loss = 0  # Ajout d'une variable pour la validation
+            with torch.no_grad():
+                for x_val, y_val in val_loader:  # Utiliser val_loader ici
+                    if self.use_gpu:
+                        x_val, y_val = x_val.cuda(), y_val.cuda()
+
+                    y_val_pred = self.forward(x_val)
+                    loss = loss_func(y_val_pred, torch.argmax(y_val, dim=1))
+                    val_loss += loss.item()
+
+            val_loss /= len(val_loader)  # Calculer la perte de validation
+
+            # Phase de test
+            test_loss = 0
             correct = 0
             total = 0
             with torch.no_grad():
@@ -79,16 +96,21 @@ class PerceptronMulticouche(nn.Module):
                     correct += (predicted == torch.argmax(y_test, dim=1)).sum().item()
                     total += y_test.size(0)
 
-            test_loss /= len(test_loader)  # Utiliser test_loader ici
+            test_loss /= len(test_loader)  # Calculer la perte de test
             accuracy = correct * 100 / total
 
+            # Affichage et enregistrement des résultats
             if not is_nested:
-                print(f"\t\tTraining Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%, Duration: {calculer_ecart_temps(debut_iteration, datetime.now().strftime('%H:%M:%S'))}")
-                self.excel.add_row(sheet_name, [epoch + 1] + list(params.values()) + [train_loss, test_loss, accuracy])
+                print(f"\t\tTraining Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}, "
+                      f"Test Loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%, Duration: "
+                      f"{calculer_ecart_temps(debut_iteration, datetime.now().strftime('%H:%M:%S'))}")
+                self.excel.add_row(sheet_name,
+                                   [epoch + 1] + list(params.values()) + [train_loss, val_loss, test_loss, accuracy])
 
+        # Pour les appels imbriqués (ex. hyperparameter tuning), enregistrement succinct
         if is_nested:
-            print(f"\tTraining Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%")
-            self.excel.add_row(sheet_name, list(params.values()) + [train_loss, test_loss, accuracy])
+            print(
+                f"\tTraining Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}, Test Loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%")
+            self.excel.add_row(sheet_name, list(params.values()) + [train_loss, val_loss, test_loss, accuracy])
         else:
             self.excel.add_row(sheet_name, self.excel.column_titles)
-
