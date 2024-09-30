@@ -37,7 +37,7 @@ class PerceptronMulticouche(nn.Module):
         x = self.output(x)  # Sortie linéaire
         return x
 
-    def train_and_evaluate(self, sheet_name, train_loader, val_loader, params, is_nested = True):
+    def train_and_evaluate(self, sheet_name, train_loader, test_loader, params, is_nested=True):
         optimizer = optim.SGD(self.parameters(), lr=params['learning_rate'])
         loss_func = nn.CrossEntropyLoss()
 
@@ -63,32 +63,32 @@ class PerceptronMulticouche(nn.Module):
             train_loss /= len(train_loader)
 
             self.eval()
-            val_loss = 0
+            test_loss = 0  # Changer le nom de la variable ici
             correct = 0
             total = 0
             with torch.no_grad():
-                for x_val, y_val in val_loader:
+                for x_test, y_test in test_loader:  # Utiliser test_loader ici
                     if self.use_gpu:
-                        x_val, y_val = x_val.cuda(), y_val.cuda()
+                        x_test, y_test = x_test.cuda(), y_test.cuda()
 
-                    y_val_pred = self.forward(x_val)
-                    loss = loss_func(y_val_pred, torch.argmax(y_val, dim=1))
-                    val_loss += loss.item()
+                    y_test_pred = self.forward(x_test)
+                    loss = loss_func(y_test_pred, torch.argmax(y_test, dim=1))
+                    test_loss += loss.item()  # Changer la variable ici
 
-                    _, predicted = torch.max(y_val_pred, 1)
-                    correct += (predicted == torch.argmax(y_val, dim=1)).sum().item()
-                    total += y_val.size(0)
+                    _, predicted = torch.max(y_test_pred, 1)
+                    correct += (predicted == torch.argmax(y_test, dim=1)).sum().item()
+                    total += y_test.size(0)
 
-            val_loss /= len(val_loader)
+            test_loss /= len(test_loader)  # Utiliser test_loader ici
             accuracy = correct * 100 / total
 
             if not is_nested:
-                print(f"\t\tTraining Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}, Accuracy: {accuracy}, Duration: {calculer_ecart_temps(debut_iteration, datetime.now().strftime('%H:%M:%S'))}")
-                self.excel.add_row(sheet_name, [epoch + 1] + list(params.values()) + [train_loss, val_loss, accuracy])
+                print(f"\t\tTraining Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%, Duration: {calculer_ecart_temps(debut_iteration, datetime.now().strftime('%H:%M:%S'))}")
+                self.excel.add_row(sheet_name, [epoch + 1] + list(params.values()) + [train_loss, test_loss, accuracy])
 
         if is_nested:
-            print(f"\tTraining Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}, Accuracy: {accuracy:.2f}%")
-            self.excel.add_row(sheet_name, list(params.values()) + [train_loss, val_loss, accuracy])
+            print(f"\tTraining Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%")
+            self.excel.add_row(sheet_name, list(params.values()) + [train_loss, test_loss, accuracy])
         else:
             self.excel.add_row(sheet_name, self.excel.column_titles)
 
