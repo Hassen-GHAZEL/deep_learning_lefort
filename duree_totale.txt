@@ -1,1 +1,0 @@
-program a commencer a 15:40:44 et a fini a 20:31:47 et la temperature du GPU est de 65.0°C
