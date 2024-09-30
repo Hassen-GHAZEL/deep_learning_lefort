@@ -77,6 +77,72 @@ def get_gpu_temperature():
     for gpu in gpus:
         return gpu.temperature  # Retourne la température du premier GPU trouvé
 
+
+import os
+import time
+import os
+import getpass
+
+
+def enregistrer_debut_programme(pid=None, filename="programme_log.txt"):
+    """
+    Enregistre l'heure de démarrage du programme avec son PID dans un fichier texte.
+    Si le fichier existe déjà, ajoute une nouvelle ligne en respectant le format demandé.
+    """
+    if pid is None:
+        pid = os.getpid()  # Obtenir le PID du processus en cours
+
+    # Récupérer l'heure actuelle
+    debut = time.strftime("%H:%M:%S")
+
+    # Vérifier si le fichier existe
+    file_exists = os.path.isfile(filename)
+
+    with open(filename, 'a') as file:
+        if file_exists:
+            # Si le fichier existe déjà et a du contenu, ajouter une nouvelle ligne
+            file.write("\n")
+        # Écrire l'heure de début et le PID
+        file.write(f"programme pid={pid} démarré à {debut}\n")
+
+    print(f"programme pid={pid} démarré à {debut}")
+
+
+def enregistrer_fin_programme(pid=None, filename="programme_log.txt"):
+    """
+    Lit la dernière ligne du fichier et enregistre l'heure de fin du programme.
+    Met à jour le fichier avec la durée d'exécution.
+    """
+    if pid is None:
+        pid = os.getpid()  # Obtenir le PID du processus en cours
+
+    fin = time.strftime("%H:%M:%S")
+    debut = ""
+    derniere_ligne = ""
+
+    # Lire la dernière ligne du fichier
+    try:
+        with open(filename, 'r') as file:
+            lignes = file.readlines()
+            derniere_ligne = lignes[-1].strip()  # Dernière ligne
+            debut = derniere_ligne.split("démarré à ")[1]  # Extraire l'heure de début
+    except (FileNotFoundError, IndexError):
+        print(f"Aucun enregistrement trouvé dans '{filename}'.")
+        return
+
+    # Calculer la durée
+    duree = calculer_ecart_temps(debut, fin)
+
+    # Afficher le message
+    print(f"{derniere_ligne}, fini à {fin}, durée {duree}")
+
+    # Mettre à jour la dernière ligne dans le fichier
+    with open(filename, 'a') as file:
+        file.write(f", fini à {fin}, durée {duree}\n")
+
+    # Arrêter le programme
+    os.system(f"taskkill /PID {pid} /F")
+
 def shutdown_system():
     """
     Méthode statique pour éteindre le système.

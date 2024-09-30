@@ -1,5 +1,4 @@
 import gzip  # Assurez-vous d'importer le module gzip
-import torch
 from Shallow_network import *  # Assurez-vous que cette classe est correctement définie
 from torch.utils.data import TensorDataset
 from Excel import ExcelManager
