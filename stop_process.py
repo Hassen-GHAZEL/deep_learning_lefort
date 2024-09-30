@@ -1,0 +1,3 @@
+from tools import enregistrer_fin_programme,lire_pid_du_fichier
+
+enregistrer_fin_programme(lire_pid_du_fichier())

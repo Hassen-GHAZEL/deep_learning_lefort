@@ -1,0 +1,5 @@
+programme pid=1668 démarré à 12:15:49
+, fini à 12:18:00, durée 00:02:11
+
+programme pid=3316 démarré à 12:28:52
+, fini à 12:29:18, durée 00:00:26

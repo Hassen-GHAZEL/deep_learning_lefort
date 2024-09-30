@@ -1,3 +1,5 @@
+import json
+import time
 import torch
 from torch.utils.data import DataLoader
 from datetime import datetime, timedelta
@@ -79,33 +81,38 @@ def get_gpu_temperature():
 
 
 import os
-import time
-import os
+
 import getpass
 
 
-def enregistrer_debut_programme(pid=None, filename="programme_log.txt"):
+def enregistrer_debut_programme(pid=None, filename="programme_log.txt", json_filename="programme_pid.json"):
     """
-    Enregistre l'heure de démarrage du programme avec son PID dans un fichier texte.
-    Si le fichier existe déjà, ajoute une nouvelle ligne en respectant le format demandé.
+    Enregistre l'heure de démarrage du programme avec son PID dans un fichier texte et dans un fichier JSON.
+    Si le fichier JSON existe déjà, il est écrasé.
     """
     if pid is None:
         pid = os.getpid()  # Obtenir le PID du processus en cours
+    else:
+        pid = int(pid)  # Convertir en int si c'est une chaîne
 
     # Récupérer l'heure actuelle
     debut = time.strftime("%H:%M:%S")
 
-    # Vérifier si le fichier existe
+    # Vérifier si le fichier texte existe
     file_exists = os.path.isfile(filename)
 
+    # Enregistrer dans le fichier texte
     with open(filename, 'a') as file:
         if file_exists:
-            # Si le fichier existe déjà et a du contenu, ajouter une nouvelle ligne
             file.write("\n")
-        # Écrire l'heure de début et le PID
         file.write(f"programme pid={pid} démarré à {debut}\n")
 
     print(f"programme pid={pid} démarré à {debut}")
+
+    # Sauvegarder le PID dans le fichier JSON
+    with open(json_filename, 'w') as json_file:
+        json.dump({'pid': pid}, json_file)
+        print(f"Le PID {pid} a été enregistré dans '{json_filename}'.")
 
 
 def enregistrer_fin_programme(pid=None, filename="programme_log.txt"):
@@ -142,6 +149,26 @@ def enregistrer_fin_programme(pid=None, filename="programme_log.txt"):
 
     # Arrêter le programme
     os.system(f"taskkill /PID {pid} /F")
+
+def lire_pid_du_fichier(json_filename="programme_pid.json")->int:
+    """
+    Lit le fichier JSON et retourne le PID enregistré en tant qu'entier.
+
+    :param json_filename: Le nom du fichier JSON à lire.
+    :return: PID en tant qu'entier ou None si le fichier n'existe pas ou si le PID n'est pas valide.
+    """
+    try:
+        with open(json_filename, 'r') as json_file:
+            data = json.load(json_file)  # Charger le contenu JSON
+            pid = data.get('pid')  # Récupérer la valeur du PID
+            return int(pid)  # Convertir et retourner le PID en tant qu'entier
+    except FileNotFoundError:
+        print(f"Le fichier '{json_filename}' n'a pas été trouvé.")
+        return -10
+    except (ValueError, TypeError):
+        print("Le PID dans le fichier JSON n'est pas valide.")
+        return -10
+
 
 def shutdown_system():
     """

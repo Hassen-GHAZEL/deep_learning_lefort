@@ -30,7 +30,7 @@ def evaluer_hyperparametre(nom, valeurs):
 
 if __name__ == '__main__':
     # Obtenir l'heure de début
-    heure_de_debut = datetime.now().strftime("%H:%M:%S")
+    enregistrer_debut_programme()
 
     # Chargement des données
     with gzip.open('mnist.pkl.gz', 'rb') as f:
@@ -56,7 +56,5 @@ if __name__ == '__main__':
     heure_de_fin = datetime.now().strftime("%H:%M:%S")
 
     # Calculer et afficher le temps total d'exécution
-    duree_totale = calculer_ecart_temps(heure_de_debut, heure_de_fin)
-    msg = f"heure de début : {heure_de_debut}, heure de fin : {heure_de_fin}, durée totale : {duree_totale} + 01:19:30 = ?"
-    create_or_overwrite_file("duree_totale.txt", msg)
+    enregistrer_fin_programme()
     shutdown_system()
