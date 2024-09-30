@@ -1,7 +1,5 @@
 import gzip
-import torch
 from torch.utils.data import TensorDataset
-from datetime import datetime
 from Shallow_network import PerceptronMulticouche
 from Excel import ExcelManager
 from tools import *
@@ -14,8 +12,8 @@ def load_data():
     return TensorDataset(data_train, label_train), TensorDataset(data_test, label_test)
 
 def main():
-    # Obtenir l'heure de début
-    heure_de_debut = datetime.now().strftime("%H:%M:%S")
+
+    enregistrer_debut_programme()
 
     nb_operation = len(tab_batch_size) * len(tab_learning_rate) * len(tab_hidden_size) * len(tab_weight_init_range)
     print(f"{len(tab_batch_size)} * {len(tab_learning_rate)} * {len(tab_hidden_size)} * {len(tab_weight_init_range)} = {nb_operation}")
@@ -32,7 +30,7 @@ def main():
     assert len(test_dataset.tensors[0]) > 0, "Le jeu de données de test doit contenir des exemples."
 
     column_names = list(definir_hyperparametres().keys()) + ["Training Loss", "Test Loss", "Accuracy"]
-    excel = ExcelManager("tableau_combinaison.xlsx", column_names)
+    excel = ExcelManager("shallow_network_imbrique.xlsx", column_names)
 
     nb_row_in_excel = excel.count_rows("EVERYTHING")
     default_params = definir_hyperparametres()
@@ -80,7 +78,7 @@ def main():
                     train_loader, test_loader = charger_donnees(train_dataset, test_dataset, params)
 
                     # Entraînement du modèle
-                    model.train_and_evaluate("EVERYTHING", train_loader, test_loader, params)
+                    model.train_and_evaluate("EVERYTHING", train_loader, test_loader, params, is_nested=False)
 
                     heure_fin_iteration = datetime.now().strftime("%H:%M:%S")
                     print(f"heure de fin iteration : {heure_fin_iteration}")
@@ -93,9 +91,7 @@ def main():
                     # Incrémenter le compteur
                     i += 1
 
-    heure_de_fin = datetime.now().strftime("%H:%M:%S")
-    msg = f"576 - 600 heure de debut : {heure_de_debut}, heure de fin : {heure_de_fin}, duree totale : {calculer_ecart_temps(heure_de_debut, heure_de_fin)}"
-    create_or_overwrite_file("duree_totale_combinaison.txt", msg)
+    enregistrer_fin_programme()
 
 if __name__ == '__main__':
     main()

@@ -67,7 +67,7 @@ if __name__ == '__main__':
                                                                                 "Test Loss", "Accuracy"]
 
     # Initialisation de la gestion du fichier Excel
-    excel = ExcelManager("tableau.xlsx", column_names)
+    excel = ExcelManager("shallow_network.xlsx", column_names)
 
     # Définition des valeurs à tester pour chaque hyperparamètre
     evaluer_hyperparametre("BATCH_SIZE", tab_batch_size)

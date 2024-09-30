@@ -4,6 +4,56 @@ import torch
 from torch.utils.data import DataLoader
 from datetime import datetime, timedelta
 import GPUtil
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+def save_boxplot_with_stats(excel_file, sheet_name, column_name, output_file="boxplot.png"):
+    # Charger les données depuis le fichier Excel
+    df = pd.read_excel(excel_file, sheet_name=sheet_name)
+
+    # Vérifier que la colonne existe
+    if column_name not in df.columns:
+        raise ValueError(f"La colonne '{column_name}' n'existe pas dans la feuille '{sheet_name}'.")
+
+    # Extraire les données de la colonne
+    data = df[column_name].dropna()  # Supprime les valeurs NaN
+
+    # Calcul des statistiques
+    min_val = round(data.min(), 2)
+    q1 = round(data.quantile(0.25), 2)
+    median = round(data.median(), 2)
+    q3 = round(data.quantile(0.75), 2)
+    max_val = round(data.max(), 2)
+
+    # Créer le boxplot sans les outliers (showfliers=False)
+    plt.figure(figsize=(12, 6))  # Augmenter la taille de la figure
+    ax = sns.boxplot(data=data, orient="h", showfliers=False)  # Désactive l'affichage des outliers
+
+    # Ajouter les valeurs statistiques sous le boxplot
+    stats = [min_val, q1, median, q3, max_val]
+
+    # Position y pour le texte (au milieu de la boîte)
+    y_pos = 0  # Pour un boxplot horizontal, la position y sera 0
+
+    # Position x pour chaque annotation
+    x_positions = [min_val, q1, median, q3, max_val]
+
+    # Affichage des valeurs
+    for stat, x_pos in zip(stats, x_positions):
+        plt.text(x_pos, y_pos, f'{stat:.2f}', va='bottom', ha='center', color='black', fontsize=10)
+
+    # Ajouter des titres et étiquettes
+    plt.title(f"Box Plot de la colonne '{column_name}'", fontsize=14)
+    plt.xlabel(column_name, fontsize=12)
+
+    # Ajuster les marges
+    plt.subplots_adjust(left=0.15, right=0.85, top=0.85, bottom=0.15)
+
+    # Sauvegarder le plot en fichier PNG
+    plt.savefig(output_file)
+    plt.close()
 
 def definir_hyperparametres(batch_size=5, nb_epochs=10, learning_rate=0.0001, input_size=784, hidden_size=128, output_size=10, weight_init_range=(-0.001, 0.001)):
     """
