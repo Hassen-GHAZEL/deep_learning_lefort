@@ -229,17 +229,17 @@ def git_commit_and_push(commit_message: str):
     try:
         # Exécuter la commande 'git add .'
         add_result = subprocess.run(['git', 'add', '.'], capture_output=True, text=True, check=True)
-        print("Résultat de 'git add .':")
+        print("git add .")
         print(add_result.stdout)
 
         # Exécuter la commande 'git commit -m commit_message'
         commit_result = subprocess.run(['git', 'commit', '-m', commit_message], capture_output=True, text=True, check=True)
-        print("Résultat de 'git commit':")
+        print("git commit -m 'commit_message'")
         print(commit_result.stdout)
 
         # Exécuter la commande 'git push'
         push_result = subprocess.run(['git', 'push'], capture_output=True, text=True, check=True)
-        print("Résultat de 'git push':")
+        print("git push")
         print(push_result.stdout)
 
     except subprocess.CalledProcessError as e:
