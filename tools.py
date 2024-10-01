@@ -7,6 +7,7 @@ import GPUtil
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import subprocess
 
 
 def save_boxplot_with_stats(excel_file, sheet_name, column_name, output_file="boxplot.png"):
@@ -219,10 +220,34 @@ def lire_pid_du_fichier(json_filename="programme_pid.json")->int:
         print("Le PID dans le fichier JSON n'est pas valide.")
         return -10
 
+def git_commit_and_push(commit_message: str):
+    """
+    Exécute les commandes Git pour ajouter, committer et pousser les modifications.
+
+    :param commit_message: Le message de commit à utiliser pour le commit Git.
+    """
+    try:
+        # Exécuter la commande 'git add .'
+        add_result = subprocess.run(['git', 'add', '.'], capture_output=True, text=True, check=True)
+        print("Résultat de 'git add .':")
+        print(add_result.stdout)
+
+        # Exécuter la commande 'git commit -m commit_message'
+        commit_result = subprocess.run(['git', 'commit', '-m', commit_message], capture_output=True, text=True, check=True)
+        print("Résultat de 'git commit':")
+        print(commit_result.stdout)
+
+        # Exécuter la commande 'git push'
+        push_result = subprocess.run(['git', 'push'], capture_output=True, text=True, check=True)
+        print("Résultat de 'git push':")
+        print(push_result.stdout)
+
+    except subprocess.CalledProcessError as e:
+        print(f"Une erreur s'est produite lors de l'exécution de Git : {e.stderr}")
 
 def shutdown_system():
     """
-    Méthode statique pour éteindre le système.
+    Méthode statique pour éteindre le système de force.
     """
     import os
-    os.system("shutdown /s /t 1")
+    os.system("shutdown /s /f /t 1")

@@ -1,5 +1,0 @@
-programme pid=13140 démarré à 14:12:14
-, fini à 15:17:43, durée 01:05:29
-
-programme pid=1592 démarré à 19:47:09
-, fini à 20:29:36, durée 00:42:27

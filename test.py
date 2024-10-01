@@ -1,7 +1,9 @@
 
-from tools import check_gpu
-import torch
+from tools import shutdown_system
+import time
 
-print(torch.cuda.is_available())
+for i in range(60):
+    print(f"Le programme s'exécute depuis {i} secondes.")
+    time.sleep(1)
+shutdown_system()
 
-print(check_gpu())
