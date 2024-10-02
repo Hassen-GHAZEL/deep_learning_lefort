@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     nb_row_in_excel = excel.count_rows("EVERYTHING")
     if nb_row_in_excel > 0 and ((nb_row_in_excel - 1) % 10) != 0:
-        raise Exception("Une epoch ou plusieurs n'ont pas été enregistrées")
+        raise Exception("Une epoch ou plusieurs n'ont pas été enregistrées pour le dernier modèle !")
 
     nb_combinaison = len(tab_batch_size) * len(tab_learning_rate) * len(tab_hidden_size) * len(tab_weight_init_range)
     print(f"{len(tab_batch_size)} * {len(tab_learning_rate)} * {len(tab_hidden_size)} * {len(tab_weight_init_range)} = {nb_combinaison}")
@@ -50,6 +50,22 @@ if __name__ == '__main__':
                         i += 1
                         continue
 
+                    # Vérification si les hyperparamètres sont égaux aux valeurs par défaut
+                    is_default = (batch_size == default_params['batch_size'] and
+                                  learning_rate == default_params['learning_rate'] and
+                                  hidden_size == default_params['hidden_size'] and
+                                  weight_init_range == default_params['weight_init_range'])
+
+                    if is_default and not bool_default:
+                        i += 1
+                        continue
+
+                    heure_debut_iteration = datetime.now().strftime("%H:%M:%S")
+                    print(
+                        f"ITERATION {i}/{nb_combinaison} ({i * 100 / nb_combinaison:.3f}%), heure de début itération : {heure_debut_iteration}")
+                    print(
+                        f"batch_size : {batch_size}, learning_rate : {learning_rate}, hidden_size : {hidden_size}, weight_init_range : {weight_init_range}")
+
                     # Chargement des hyperparamètres pour cette itération
                     params = definir_hyperparametres(
                         batch_size=batch_size,
@@ -58,21 +74,22 @@ if __name__ == '__main__':
                         weight_init_range=weight_init_range
                     )
 
-                    # Création des DataLoaders (jeu d'entraînement et jeu de test sont constants)
-                    train_loader, val_loader, test_loader = charger_donnees(train_dataset, test_dataset, params)
-
                     # Initialisation du modèle avec les hyperparamètres actuels
                     model = PerceptronMulticouche(params['input_size'], params['hidden_size'], params['output_size'],
                                                   params['weight_init_range'], excel)
 
+                    # Création des DataLoaders (jeu d'entraînement et jeu de test sont constants)
+                    train_loader, val_loader, test_loader = charger_donnees(train_dataset, test_dataset, params)
+
                     # Entraînement et évaluation du modèle
                     model.train_and_evaluate("EVERYTHING", train_loader, val_loader, test_loader, params)
 
-                    if (batch_size == default_params['batch_size'] and
-                        learning_rate == default_params['learning_rate'] and
-                        hidden_size == default_params['hidden_size'] and
-                        weight_init_range == default_params['weight_init_range']) and not bool_default:
-                        bool_default = False
+                    heure_fin_iteration = datetime.now().strftime("%H:%M:%S")
+                    print(f"Heure de fin itération : {heure_fin_iteration}")
+                    print(f"Durée de l'itération : {calculer_ecart_temps(heure_debut_iteration, heure_fin_iteration)}")
+
+                    if is_default:
+                        bool = False
                         compt_repetitions += 1
 
                     # Incrémenter le compteur
