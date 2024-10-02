@@ -263,4 +263,4 @@ def shutdown_system():
     Méthode statique pour éteindre le système de force.
     """
     import os
-    os.system("shutdown /s /f /t 1")
+    os.system("shutdown /s /f /t 10")
