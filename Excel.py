@@ -36,7 +36,6 @@ class ExcelManager:
                 item) else item
             for item in row_data
         ]
-
         sheet.append(processed_row)
         self.save()
 

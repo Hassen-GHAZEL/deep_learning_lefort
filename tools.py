@@ -4,13 +4,14 @@ import torch
 from torch.utils.data import DataLoader
 from datetime import datetime, timedelta
 import GPUtil
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import subprocess
 
 
-def save_boxplot_with_stats(excel_file, sheet_name, column_name, output_file="boxplot.png"):
+def save_boxplot_with_stats(excel_file, sheet_name, column_name, output_file="image/boxplot.png"):
     # Charger les données depuis le fichier Excel
     df = pd.read_excel(excel_file, sheet_name=sheet_name)
 
@@ -131,12 +132,10 @@ def get_gpu_temperature():
         return gpu.temperature  # Retourne la température du premier GPU trouvé
 
 
-import os
-
-import getpass
 
 
-def enregistrer_debut_programme(pid=None, filename="programme_log.txt", json_filename="programme_pid.json"):
+
+def enregistrer_debut_programme(pid=None, filename="txt/programme_log.txt", json_filename="json/programme_pid.json"):
     """
     Enregistre l'heure de démarrage du programme avec son PID dans un fichier texte et dans un fichier JSON.
     Si le fichier JSON existe déjà, il est écrasé.
@@ -166,7 +165,7 @@ def enregistrer_debut_programme(pid=None, filename="programme_log.txt", json_fil
         print(f"Le PID {pid} a été enregistré dans '{json_filename}'.")
 
 
-def enregistrer_fin_programme(pid=None, filename="programme_log.txt"):
+def enregistrer_fin_programme(pid=None, filename="txt/programme_log.txt"):
     """
     Lit la dernière ligne du fichier et enregistre l'heure de fin du programme.
     Met à jour le fichier avec la durée d'exécution.
@@ -198,10 +197,11 @@ def enregistrer_fin_programme(pid=None, filename="programme_log.txt"):
     with open(filename, 'a') as file:
         file.write(f", fini à {fin}, durée {duree}\n")
 
-    # Arrêter le programme
-    os.system(f"taskkill /PID {pid} /F")
+    # Arrêter le programme si le PID n'est pas fourni
+    if pid is None:
+        os.system(f"taskkill /PID {pid} /F")  # Tuer le processus avec le PID
 
-def lire_pid_du_fichier(json_filename="programme_pid.json")->int:
+def lire_pid_du_fichier(json_filename="json/programme_pid.json")->int:
     """
     Lit le fichier JSON et retourne le PID enregistré en tant qu'entier.
 

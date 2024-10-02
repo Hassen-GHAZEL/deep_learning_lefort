@@ -1,6 +1,6 @@
 import gzip  # Assurez-vous d'importer le module gzip
 from Shallow_network import *  # Assurez-vous que cette classe est correctement définie
-from torch.utils.data import TensorDataset, random_split, DataLoader
+from torch.utils.data import TensorDataset, random_split
 from Excel import ExcelManager
 from tools import *
 from constantes import *
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     enregistrer_debut_programme()
     #
     # Chargement des données
-    with gzip.open('mnist.pkl.gz', 'rb') as f:
+    with gzip.open('data/mnist.pkl.gz', 'rb') as f:
         (data_train, label_train), (data_test, label_test) = torch.load(f)
 
     # Préparation des jeux de données
@@ -67,18 +67,16 @@ if __name__ == '__main__':
                                                                                 "Test Loss", "Accuracy"]
 
     # Initialisation de la gestion du fichier Excel
-    excel = ExcelManager("shallow_network.xlsx", column_names)
+    excel = ExcelManager("excel/test2.xlsx", column_names)
 
 
     # Définition des valeurs à tester pour chaque hyperparamètre
     evaluer_hyperparametre("BATCH_SIZE", tab_batch_size)
-    evaluer_hyperparametre("LEARNING_RATE", tab_learning_rate)
-    evaluer_hyperparametre("HIDDEN_SIZE", tab_hidden_size)
-    evaluer_hyperparametre("WEIGHT_INIT_RANGE", tab_weight_init_range)
-
-
+    # evaluer_hyperparametre("LEARNING_RATE", tab_learning_rate)
+    # evaluer_hyperparametre("HIDDEN_SIZE", tab_hidden_size)
+    # evaluer_hyperparametre("WEIGHT_INIT_RANGE", tab_weight_init_range)
 
 
     # Calculer et afficher le temps total d'exécution
     enregistrer_fin_programme()
-    shutdown_system()
+    #shutdown_system()

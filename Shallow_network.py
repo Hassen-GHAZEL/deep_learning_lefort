@@ -41,7 +41,7 @@ class PerceptronMulticouche(nn.Module):
     def train_and_evaluate(self, sheet_name, train_loader, val_loader, test_loader, params, is_nested=True):
         optimizer = optim.SGD(self.parameters(), lr=params['learning_rate'])
         loss_func = nn.CrossEntropyLoss()
-
+        rows = []
         for epoch in range(params['nb_epochs']):
             debut_iteration = datetime.now().strftime("%H:%M:%S")
             if not is_nested:
@@ -104,13 +104,14 @@ class PerceptronMulticouche(nn.Module):
                 print(f"\t\tTraining Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}, "
                       f"Test Loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%, Duration: "
                       f"{calculer_ecart_temps(debut_iteration, datetime.now().strftime('%H:%M:%S'))}")
-                self.excel.add_row(sheet_name,
-                                   [epoch + 1] + list(params.values()) + [train_loss, val_loss, test_loss, accuracy])
+            rows.append([epoch + 1] + list(params.values()) + [train_loss, val_loss, test_loss, accuracy])
+
+        for row in rows:
+            self.excel.add_row(sheet_name, row)
 
         # Pour les appels imbriqués (ex. hyperparameter tuning), enregistrement succinct
         if is_nested:
             print(
                 f"\tTraining Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}, Test Loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%")
-            self.excel.add_row(sheet_name, list(params.values()) + [train_loss, val_loss, test_loss, accuracy])
         else:
             self.excel.add_row(sheet_name, self.excel.column_titles)
