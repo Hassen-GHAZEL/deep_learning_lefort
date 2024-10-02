@@ -1,7 +1,7 @@
 import json
 import time
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split
 from datetime import datetime, timedelta
 import GPUtil
 import os
@@ -81,13 +81,26 @@ def check_list_type(variable):
     return "Ce n'est pas une liste"
 
 
-def charger_donnees(train_dataset, val_dataset, params):
+def charger_donnees(train_dataset, test_dataset, params):
     """
-    Fonction pour charger les données et créer les DataLoader.
+    Charger et préparer les jeux de données avec la validation.
     """
+    # Fraction de données pour la validation (par exemple 20%)
+    validation_split = 0.2
+
+    # Taille des ensembles d'entraînement et de validation
+    train_size = int((1 - validation_split) * len(train_dataset))
+    val_size = len(train_dataset) - train_size
+
+    # Diviser les données d'entraînement
+    train_dataset, val_dataset = random_split(train_dataset, [train_size, val_size])
+
+    # Création des DataLoader
     train_loader = DataLoader(train_dataset, batch_size=params['batch_size'], shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=params['batch_size'], shuffle=False)
-    return train_loader, val_loader
+    test_loader = DataLoader(test_dataset, batch_size=params['batch_size'], shuffle=False)
+
+    return train_loader, val_loader, test_loader
 
 
 def calculer_ecart_temps(t1: str, t2: str) -> str:

@@ -28,27 +28,6 @@ def evaluer_hyperparametre(nom, valeurs):
         print(f"\tDurée de cette itération ({nom}={valeur}): {ecart}")
 
 
-def charger_donnees(train_dataset, test_dataset, params):
-    """
-    Charger et préparer les jeux de données avec la validation.
-    """
-    # Fraction de données pour la validation (par exemple 20%)
-    validation_split = 0.2
-
-    # Taille des ensembles d'entraînement et de validation
-    train_size = int((1 - validation_split) * len(train_dataset))
-    val_size = len(train_dataset) - train_size
-
-    # Diviser les données d'entraînement
-    train_dataset, val_dataset = random_split(train_dataset, [train_size, val_size])
-
-    # Création des DataLoader
-    train_loader = DataLoader(train_dataset, batch_size=params['batch_size'], shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=params['batch_size'], shuffle=False)
-    test_loader = DataLoader(test_dataset, batch_size=params['batch_size'], shuffle=False)
-
-    return train_loader, val_loader, test_loader
-
 
 if __name__ == '__main__':
     # # Obtenir l'heure de début
