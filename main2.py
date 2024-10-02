@@ -78,6 +78,7 @@ if __name__ == '__main__':
                     # Incrémenter le compteur
                     i += 1
 
+    create_or_overwrite_file("txt/info.txt", f"Nombre de répétitions des hyperparamètres par défaut : {compt_repetitions}")
     enregistrer_fin_programme()
     git_commit_and_push("Toutes les combinaisons d'hyperparamètres ont été testées !")
     shutdown_system()
