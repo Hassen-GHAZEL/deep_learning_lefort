@@ -165,9 +165,9 @@ def enregistrer_debut_programme(pid=None, filename="txt/programme_log.txt", json
     with open(filename, 'a') as file:
         if file_exists:
             file.write("\n")
-        file.write(f"programme pid={pid} démarré à {debut}\n")
+        file.write(f"programme pid={pid} demarre a {debut}")
 
-    print(f"programme pid={pid} démarré à {debut}")
+    print(f"programme pid={pid} demarre a {debut}")
 
     # Sauvegarder le PID dans le fichier JSON
     with open(json_filename, 'w') as json_file:
@@ -192,7 +192,7 @@ def enregistrer_fin_programme(pid=None, filename="txt/programme_log.txt"):
         with open(filename, 'r') as file:
             lignes = file.readlines()
             derniere_ligne = lignes[-1].strip()  # Dernière ligne
-            debut = derniere_ligne.split("démarré à ")[1]  # Extraire l'heure de début
+            debut = derniere_ligne.split("demarre a ")[1]  # Extraire l'heure de début
     except (FileNotFoundError, IndexError):
         print(f"Aucun enregistrement trouvé dans '{filename}'.")
         return
@@ -205,10 +205,10 @@ def enregistrer_fin_programme(pid=None, filename="txt/programme_log.txt"):
 
     # Mettre à jour la dernière ligne dans le fichier
     with open(filename, 'a') as file:
-        file.write(f", fini à {fin}, durée {duree}\n")
+        file.write(f", fini a {fin}, duree {duree}\n")
 
-    # Arrêter le programme si le PID n'est pas fourni
-    if pid is None:
+    # Arrêter le programme si le PID est fourni
+    if pid is not None:
         os.system(f"taskkill /PID {pid} /F")  # Tuer le processus avec le PID
 
 def lire_pid_du_fichier(json_filename="json/programme_pid.json")->int:
