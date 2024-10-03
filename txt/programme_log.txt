@@ -1,1 +1,4 @@
 programme pid=23396 dï¿½marrï¿½ ï¿½ 23:36:15
+
+programme pid=1212 démarré à 09:57:37
+, fini à 12:59:19, durée 03:01:42

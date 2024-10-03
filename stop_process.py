@@ -3,5 +3,5 @@ from tools import enregistrer_fin_programme,lire_pid_du_fichier,git_commit_and_p
 
 time.sleep(3*3600)
 enregistrer_fin_programme(lire_pid_du_fichier())
-git_commit_and_push("commit from python execution, après 1sec d'exécution")
+git_commit_and_push("commit from python execution, après 3H d'exécution")
 shutdown_system()
