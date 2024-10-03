@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
                     heure_fin_iteration = datetime.now().strftime("%H:%M:%S")
                     print(f"Heure de fin itération : {heure_fin_iteration}")
-                    print(f"Durée de l'itération : {calculer_ecart_temps(heure_debut_iteration, heure_fin_iteration)}")
+                    print(f"Durée de l'itération : {calculer_ecart_temps(heure_debut_iteration, heure_fin_iteration)} \n")
 
                     if is_default:
                         bool = False
