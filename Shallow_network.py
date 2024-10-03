@@ -14,6 +14,7 @@ class PerceptronMulticouche(nn.Module):
 
         # Détection automatique du GPU. Si disponible, use_gpu est défini à True.
         self.use_gpu = torch.cuda.is_available()
+        # self.use_gpu = False
 
         # Définition des couches du réseau
         self.hidden = nn.Linear(input_size, hidden_size)

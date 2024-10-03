@@ -1,4 +1,11 @@
 programme pid=23396 dï¿½marrï¿½ ï¿½ 23:36:15
+, fini ï¿½ 03:45:33, durï¿½e 04:09:18
 
-programme pid=1212 démarré à 09:57:37
-, fini à 12:59:19, durée 03:01:42
+programme pid=1212 dï¿½marrï¿½ ï¿½ 09:57:37
+, fini ï¿½ 12:59:19, durï¿½e 03:01:42
+
+programme pid=20748 dï¿½marrï¿½ ï¿½ 17:03:06
+, fini ï¿½ 17:09:55, durï¿½e ?
+
+programme pid=25100 démarré à 17:13:15
+, fini à 19:20:40, durée 02:07:25
