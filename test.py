@@ -1,9 +1,3 @@
+from tools import save_boxplot_with_stats
 
-from tools import shutdown_system
-import time
-
-for i in range(60):
-    print(f"Le programme s'exécute depuis {i} secondes.")
-    time.sleep(1)
-shutdown_system()
-
+save_boxplot_with_stats("excel/shallow_network_combinaison.xlsx", "EVERYTHING", "Accuracy", "image/boxplot.png")
