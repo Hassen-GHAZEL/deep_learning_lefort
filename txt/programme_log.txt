@@ -1,23 +1,3 @@
-programme pid=23396 demarre a 23:36:15, fini a 03:45:33, duree 04:09:18
-
-programme pid=1212 demarre a 09:57:37, fini a 12:59:19, duree 03:01:42
-
-programme pid=20748 demarre a 17:03:06, fini a 17:09:55, duree 00:06:49
-
-programme pid=25100 demarre a 17:13:15, fini a 19:20:40, duree 02:07:25
-
-programme pid=21144 demarre a 20:52:36, fini a 21:11:16, duree 00:18:40
-
-programme pid=7308 demarre a 21:33:39, fini a 21:35:43, duree 00:02:04
-
-programme pid=5684 demarre a 21:37:21, fini a 21:40:06, duree 00:02:45
-
-programme pid=18992 demarre a 21:40:22, fini a 22:06:52, duree 00:26:30
-
-programme pid=13608 demarre a 14:18:13, fini a 16:32:48, duree 02:14:35
-
-programme pid=6048 demarre a 18:14:29, fini a 19:18:07, duree 01:03:38
-
-programme pid=11012 demarre a 19:21:15, fini a 00:39:59, duree 05:18:44
-
-programme pid=23420 demarre a 16:34:16
+programme pid=3368 demarre a 19:13:06, fini a 19:52:52, duree 00:39:46
+programme pid=2988 demarre a 20:04:42, fini a 20:33:00, duree 00:28:18
+programme pid=26012 demarre a 21:06:04, fini a 21:23:56, duree 00:17:52

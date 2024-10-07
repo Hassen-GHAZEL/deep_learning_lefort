@@ -17,7 +17,7 @@ def evaluer_hyperparametre(nom, valeurs):
         params = definir_hyperparametres(**{nom.lower(): valeur})
         print(f"\tHyperparamètres : {params}")
 
-        use_gpu = check_gpu() < 50
+        use_gpu = get_gpu_temperature() < 50
         model = DeepNetwork(params['input_size'], params['hidden_size'], params['output_size'],
                                       params['weight_init_range'], excel, use_gpu)
 
@@ -52,12 +52,13 @@ if __name__ == '__main__':
 
 
     # Définition des valeurs à tester pour chaque hyperparamètre
-    evaluer_hyperparametre("BATCH_SIZE", tab_batch_size)
-    evaluer_hyperparametre("LEARNING_RATE", tab_learning_rate)
-    evaluer_hyperparametre("HIDDEN_SIZE", tab_hidden_size)
+    # evaluer_hyperparametre("BATCH_SIZE", tab_batch_size)
+    # evaluer_hyperparametre("LEARNING_RATE", tab_learning_rate)
+    # evaluer_hyperparametre("HIDDEN_SIZE", tab_hidden_size)
     evaluer_hyperparametre("WEIGHT_INIT_RANGE", tab_weight_init_range)
 
 
     # Calculer et afficher le temps total d'exécution
     enregistrer_fin_programme()
-    #shutdown_system()
+    git_commit_and_push("deep network, analyse hyperparamètres terminée")
+    shutdown_system()
