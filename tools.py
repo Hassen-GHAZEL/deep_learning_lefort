@@ -57,7 +57,13 @@ def save_boxplot_with_stats(excel_file, sheet_name, column_name, output_file="im
     plt.savefig(output_file)
     plt.close()
 
-def definir_hyperparametres(batch_size=5, nb_epochs=10, learning_rate=0.0001, input_size=784, hidden_size=128, output_size=10, weight_init_range=(-0.001, 0.001)):
+def definir_hyperparametres(batch_size=5, 
+                            nb_epochs=10, 
+                            learning_rate=0.0001, 
+                            input_size=784, 
+                            hidden_size=[256, 128], # hidden_size=128, 
+                            output_size=10, 
+                            weight_init_range=(-0.001, 0.001)):
     """
     Fonction pour définir les hyperparamètres du modèle.
     Renvoie un dictionnaire contenant les hyperparamètres.
@@ -67,7 +73,7 @@ def definir_hyperparametres(batch_size=5, nb_epochs=10, learning_rate=0.0001, in
         'nb_epochs': nb_epochs,            # Nombre d'époques d'entraînement
         'learning_rate': learning_rate,    # Taux d'apprentissage pour l'optimiseur
         'input_size': input_size,          # Nombre de caractéristiques d'entrée (28x28 pixels pour MNIST)
-        'hidden_size': hidden_size,        # Nombre de neurones dans la couche cachée
+        'hidden_size': hidden_size,        # Nombre de neurones dans la couche cachée ou chaque couche cachée
         'output_size': output_size,        # Nombre de classes (0 à 9 pour MNIST)
         'weight_init_range': weight_init_range  # Plage d'initialisation des poids
     }
@@ -180,8 +186,10 @@ def enregistrer_fin_programme(pid=None, filename="txt/programme_log.txt"):
     Lit la dernière ligne du fichier et enregistre l'heure de fin du programme.
     Met à jour le fichier avec la durée d'exécution.
     """
+    bool = True
     if pid is None:
         pid = os.getpid()  # Obtenir le PID du processus en cours
+        bool = False
 
     fin = time.strftime("%H:%M:%S")
     debut = ""
@@ -208,7 +216,7 @@ def enregistrer_fin_programme(pid=None, filename="txt/programme_log.txt"):
         file.write(f", fini a {fin}, duree {duree}\n")
 
     # Arrêter le programme si le PID est fourni
-    if pid is not None:
+    if bool: # Si le PID a été fourni lors de l'appel de la fonction
         os.system(f"taskkill /PID {pid} /F")  # Tuer le processus avec le PID
 
 def lire_pid_du_fichier(json_filename="json/programme_pid.json")->int:
