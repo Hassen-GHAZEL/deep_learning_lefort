@@ -151,6 +151,7 @@ def get_gpu_temperature():
         return gpu.temperature  # Retourne la température du premier GPU trouvé
 
 
+
 def enregistrer_debut_programme(pid=None, filename="txt/programme_log.txt", json_filename="json/programme_pid.json"):
     """
     Enregistre l'heure de démarrage du programme avec son PID dans un fichier texte et dans un fichier JSON.

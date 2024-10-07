@@ -1,5 +1,5 @@
 import gzip  # Assurez-vous d'importer le module gzip
-from Shallow_network import *  # Assurez-vous que cette classe est correctement définie
+from Deep_network import * # Assurez-vous que cette classe est correctement définie
 from torch.utils.data import TensorDataset, random_split
 from Excel import ExcelManager
 from tools import *
@@ -16,8 +16,10 @@ def evaluer_hyperparametre(nom, valeurs):
 
         params = definir_hyperparametres(**{nom.lower(): valeur})
         print(f"\tHyperparamètres : {params}")
-        model = PerceptronMulticouche(params['input_size'], params['hidden_size'], params['output_size'],
-                                      params['weight_init_range'], excel)
+
+        use_gpu = check_gpu() < 50
+        model = DeepNetwork(params['input_size'], params['hidden_size'], params['output_size'],
+                                      params['weight_init_range'], excel, use_gpu)
 
         # Inclure val_loader pour le jeu de validation
         train_loader, val_loader, test_loader = charger_donnees(train_dataset, test_dataset, params)
@@ -46,14 +48,14 @@ if __name__ == '__main__':
                                                                                 "Test Loss", "Accuracy"]
 
     # Initialisation de la gestion du fichier Excel
-    excel = ExcelManager("excel/test2.xlsx", column_names)
+    excel = ExcelManager("excel/deep_network.xlsx", column_names)
 
 
     # Définition des valeurs à tester pour chaque hyperparamètre
     evaluer_hyperparametre("BATCH_SIZE", tab_batch_size)
-    # evaluer_hyperparametre("LEARNING_RATE", tab_learning_rate)
-    # evaluer_hyperparametre("HIDDEN_SIZE", tab_hidden_size)
-    # evaluer_hyperparametre("WEIGHT_INIT_RANGE", tab_weight_init_range)
+    evaluer_hyperparametre("LEARNING_RATE", tab_learning_rate)
+    evaluer_hyperparametre("HIDDEN_SIZE", tab_hidden_size)
+    evaluer_hyperparametre("WEIGHT_INIT_RANGE", tab_weight_init_range)
 
 
     # Calculer et afficher le temps total d'exécution

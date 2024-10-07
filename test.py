@@ -1,3 +1,3 @@
-from tools import save_boxplot_with_stats
+from tools import get_cpu_temperature
 
-save_boxplot_with_stats("excel/shallow_network_combinaison.xlsx", "EVERYTHING", "Accuracy", "image/boxplot.png")
+print(f"CPU temperature: {get_cpu_temperature()}")

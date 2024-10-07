@@ -7,7 +7,7 @@ from tools import calculer_ecart_temps
 
 class DeepNetwork(nn.Module):
 
-    def __init__(self, input_size, hidden_layers, output_size, weight_init_range, excel):
+    def __init__(self, input_size, hidden_layers, output_size, weight_init_range, excel, gpu_automatic = True):
         """
         input_size : taille des entrées
         hidden_layers : liste d'entiers représentant le nombre de neurones dans chaque couche cachée
@@ -20,7 +20,7 @@ class DeepNetwork(nn.Module):
         self.excel = excel
 
         # Détection automatique du GPU. Si disponible, use_gpu est défini à True.
-        self.use_gpu = torch.cuda.is_available()
+        self.use_gpu = torch.cuda.is_available() and gpu_automatic
 
         # Supprimer les couches avec 0 neurones
         hidden_layers = [h for h in hidden_layers if h > 0]
