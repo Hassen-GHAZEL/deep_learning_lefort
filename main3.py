@@ -54,8 +54,8 @@ if __name__ == '__main__':
     # Définition des valeurs à tester pour chaque hyperparamètre
     # evaluer_hyperparametre("BATCH_SIZE", tab_batch_size)
     # evaluer_hyperparametre("LEARNING_RATE", tab_learning_rate)
-    # evaluer_hyperparametre("HIDDEN_SIZE", tab_hidden_size)
-    evaluer_hyperparametre("WEIGHT_INIT_RANGE", tab_weight_init_range)
+    evaluer_hyperparametre("HIDDEN_SIZE", tab_hidden_size)
+    # evaluer_hyperparametre("WEIGHT_INIT_RANGE", tab_weight_init_range)
 
 
     # Calculer et afficher le temps total d'exécution
