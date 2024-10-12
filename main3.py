@@ -21,6 +21,11 @@ def evaluer_hyperparametre(nom, valeurs):
         model = DeepNetwork(params['input_size'], params['hidden_size'], params['output_size'],
                                       params['weight_init_range'], excel, use_gpu)
 
+        if params['hidden_size'] == 2:
+            params['nb_epochs'] = 22
+        elif params['hidden_size'] == 3:
+            params['nb_epochs'] = 35
+
         # Inclure val_loader pour le jeu de validation
         train_loader, val_loader, test_loader = charger_donnees(train_dataset, test_dataset, params)
         model.train_and_evaluate(nom, train_loader, val_loader, test_loader, params, is_nested=False)
@@ -61,4 +66,4 @@ if __name__ == '__main__':
     # Calculer et afficher le temps total d'exécution
     enregistrer_fin_programme()
     git_commit_and_push("deep network, analyse hyperparamètres terminée")
-    shutdown_system()
+    # shutdown_system()
