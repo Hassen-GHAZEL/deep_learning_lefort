@@ -21,7 +21,6 @@ class DeepNetwork(nn.Module):
 
         # Détection automatique du GPU. Si disponible, use_gpu est défini à True.
         self.use_gpu = torch.cuda.is_available() and gpu_automatic
-
         # Supprimer les couches avec 0 neurones
         hidden_layers = [h for h in hidden_layers if h > 0]
 

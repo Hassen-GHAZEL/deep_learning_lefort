@@ -4,3 +4,12 @@ programme pid=26012 demarre a 21:06:04, fini a 21:23:56, duree 00:17:52
 
 programme pid=26336 demarre a 20:45:59, fini a 20:50:02, duree 00:04:03
 programme pid=8500 demarre a 12:41:01, fini a 12:52:19, duree 00:11:18
+
+
+programme pid=21744 demarre a 15:45:28, fini a 15:59:26, duree 00:13:58
+programme pid=12352 demarre a 16:02:35, fini a 16:35:14, duree 00:32:39
+programme pid=12352 demarre a 16:35:14, fini a 17:14:23, duree 00:39:09
+
+programme pid=26984 demarre a 17:19:30, fini a 18:22:22, duree 01:02:52
+
+programme pid=1820 demarre a 18:24:52, fini a 22:41:40, duree 04:16:48
