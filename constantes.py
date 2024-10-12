@@ -2,10 +2,15 @@ tab_batch_size = [2, 4, 8, 16, 32, 64, 128]
 tab_learning_rate = [0.00001, 0.0001, 0.001, 0.01, 0.1, 0.2, 0.25, 0.5, 0.6, 0.75, 1, 2]
 
 
-values_for_triplets = [128, 256, 512]
+liste_value = [256, 512]
 
-# Ajout des tuples de taille 3 sans exclusion
-tab_hidden_size = [(x, y, z) for x in values_for_triplets for y in values_for_triplets for z in values_for_triplets]
+tab_hidden_size = [(a, b, c, d) for a in liste_value for b in liste_value for c in liste_value for d in liste_value]
+
+liste_value = [512, 1024]
+
+tab_hidden_size.extend([(a, b, c, d, e) for a in liste_value for b in liste_value for c in liste_value for d in liste_value for e in liste_value])
+
+# tab_hidden_size = [(x, y, z) for x in values_for_triplets for y in values_for_triplets for z in values_for_triplets]
 
 
 tab_weight_init_range = [(-0.0001, 0.0001), (-0.001, 0.001), (-0.01, 0.01), (-0.1, 0.1), (-1, 1), (-2, 2), (-5, 5), (-10, 10)]
