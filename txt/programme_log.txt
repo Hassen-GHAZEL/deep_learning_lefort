@@ -20,3 +20,6 @@ programme pid=33432 demarre a 01:08:24, fini a 06:18:56, duree 05:10:32
 
 programme pid=6744 demarre a 16:30:54
 programme pid=19184 demarre a 16:37:20, fini a 16:46:55, duree 00:09:35
+
+
+programme pid=12024 demarre a 16:54:40, fini a 18:48:00, duree 01:53:20

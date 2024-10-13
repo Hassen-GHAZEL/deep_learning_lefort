@@ -63,5 +63,5 @@ if __name__ == '__main__':
 
     # Calculer et afficher le temps total d'exécution
     enregistrer_fin_programme()
-    git_commit_and_push("deep network, analyse hyperparamètres terminée")
-    shutdown_system()
+    git_commit_and_push("deep network, analyse hyperparamètres couche caché terminé")
+    # shutdown_system()
