@@ -21,8 +21,8 @@ def evaluer_hyperparametre(nom, valeurs):
         model = DeepNetwork(params['input_size'], params['hidden_size'], params['output_size'],
                                       params['weight_init_range'], excel, use_gpu)
 
-        if(len(params['hidden_size']) >= 4):
-            params["nb_epochs"] = 50
+        # if(len(params['hidden_size']) >= 4):
+        #     params["nb_epochs"] = 50
 
         # Inclure val_loader pour le jeu de validation
         train_loader, val_loader, test_loader = charger_donnees(train_dataset, test_dataset, params)

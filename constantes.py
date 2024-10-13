@@ -2,11 +2,9 @@ tab_batch_size = [2, 4, 8, 16, 32, 64, 128]
 tab_learning_rate = [0.00001, 0.0001, 0.001, 0.01, 0.1, 0.2, 0.25, 0.5, 0.6, 0.75, 1, 2]
 
 
-liste_value = [256, 512]
 
-tab_hidden_size = [(a, b, c, d) for a in liste_value for b in liste_value for c in liste_value for d in liste_value]
 
-tab_hidden_size.extend((256, 256, 256, 256, 256))
+tab_hidden_size = [(256, 256, 256), (256, 256, 256, 256), (256, 256, 256, 256, 256)]
 
 # tab_hidden_size = [(x, y, z) for x in values_for_triplets for y in values_for_triplets for z in values_for_triplets]
 

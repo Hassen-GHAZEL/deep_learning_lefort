@@ -59,11 +59,11 @@ def save_boxplot_with_stats(excel_file, sheet_name, column_name, output_file="im
 
 def definir_hyperparametres(batch_size=5, 
                             nb_epochs=10, 
-                            learning_rate=0.001,
+                            learning_rate=0.01,
                             input_size=784, 
                             hidden_size=(16, 16), # hidden_size=128,
                             output_size=10, 
-                            weight_init_range=(-0.01, 0.01)):
+                            weight_init_range=(-0.1, 0.1)):
     """
     Fonction pour définir les hyperparamètres du modèle.
     Renvoie un dictionnaire contenant les hyperparamètres.
