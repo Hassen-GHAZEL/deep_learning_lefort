@@ -6,9 +6,7 @@ liste_value = [256, 512]
 
 tab_hidden_size = [(a, b, c, d) for a in liste_value for b in liste_value for c in liste_value for d in liste_value]
 
-liste_value = [512, 1024]
-
-tab_hidden_size.extend([(a, b, c, d, e) for a in liste_value for b in liste_value for c in liste_value for d in liste_value for e in liste_value])
+tab_hidden_size.extend((256, 256, 256, 256, 256))
 
 # tab_hidden_size = [(x, y, z) for x in values_for_triplets for y in values_for_triplets for z in values_for_triplets]
 
