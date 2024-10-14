@@ -100,5 +100,5 @@ if __name__ == '__main__':
 
     create_or_overwrite_file("txt/info.txt", f"Nombre de répétitions des hyperparamètres par défaut : {compt_repetitions}")
     enregistrer_fin_programme()
-    git_commit_and_push("Toutes les combinaisons d'hyperparamètres ont été testées pour deep_network!")
-    shutdown_system()
+    git_commit_and_push("Toutes les combinaisons d'hyperparamètres ont été testées pour deep_network, y compris (-0.1, 0.1) !")
+    # shutdown_system()
