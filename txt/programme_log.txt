@@ -30,10 +30,11 @@ programme pid=23776 demarre a 22:31:18, fini a 05:40:10, duree 07:08:52
 programme pid=23080 demarre a 14:01:07, fini a 14:04:51, duree 00:03:44
 
 programme pid=22884 demarre a 14:09:33, fini a 17:42:55, duree 03:33:22
-
-duree totale de cette 2eme partie 10 heures, 44 minutes et 18 secondes
-
-durée totale de toutes les parties pour le deep_network : 26 heures, 24 minutes et 28 secondes
-programme pid=29540 demarre a 22:02:50, fini a 22:02:50, duree 00:00:00
-
 programme pid=19560 demarre a 22:07:05, fini a 23:40:37, duree 01:33:32
+
+duree totale de cette 2eme partie 12 heures, 19 minutes et 30 secondes
+
+durée totale de toutes les parties pour le deep_network : 27 heures, 59 minutes et 40 secondes
+
+
+
