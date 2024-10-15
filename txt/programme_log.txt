@@ -34,3 +34,6 @@ programme pid=22884 demarre a 14:09:33, fini a 17:42:55, duree 03:33:22
 duree totale de cette 2eme partie 10 heures, 44 minutes et 18 secondes
 
 durée totale de toutes les parties pour le deep_network : 26 heures, 24 minutes et 28 secondes
+programme pid=29540 demarre a 22:02:50, fini a 22:02:50, duree 00:00:00
+
+programme pid=19560 demarre a 22:07:05, fini a 23:40:37, duree 01:33:32

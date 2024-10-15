@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
     # Initialisation Excel
     column_names = ["numero epoch"] + list(definir_hyperparametres().keys()) + ["Training Loss", "Validation Loss", "Test Loss", "Accuracy"]
-    excel = ExcelManager("excel/deep_network_combinaison.xlsx", column_names)
+    excel = ExcelManager("excel/deep_network_combinaison2.xlsx", column_names)
 
     # Chargement des données une seule fois
     filepath = 'data/mnist.pkl.gz'
@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
                     # Initialisation du modèle avec les hyperparamètres actuels
                     model = DeepNetwork(params['input_size'], params['hidden_size'], params['output_size'],
-                                                  params['weight_init_range'], excel, use_GPU)
+                                                  params['weight_init_range'], excel, False)
 
                     # Création des DataLoaders (jeu d'entraînement et jeu de test sont constants)
                     train_loader, val_loader, test_loader = charger_donnees(train_dataset, test_dataset, params)

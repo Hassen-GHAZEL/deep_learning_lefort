@@ -1,6 +1,6 @@
 tab_batch_size = [2, 3, 4, 5] # 4
 tab_learning_rate = [0.001, 0.01] # 2
-tab_weight_init_range = [(-0.1, 0.1)] # 1
+tab_weight_init_range = [(-1, 1)] # 1
 tab_hidden_size = [(128, 256), (256, 128), (256, 256), (256, 256, 256), (256, 256, 256, 256), (256, 256, 256, 256, 256)] # 5
 
 
