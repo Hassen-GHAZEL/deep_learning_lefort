@@ -7,7 +7,7 @@ from tools import calculer_ecart_temps
 
 class DeepNetwork(nn.Module):
 
-    def __init__(self, input_size, hidden_layers, output_size, weight_init_range, excel, gpu_automatic = True):
+    def __init__(self, input_size, hidden_layers, output_size, weight_init_range, excel, gpu_automatic=True):
         """
         input_size : taille des entrées
         hidden_layers : liste d'entiers représentant le nombre de neurones dans chaque couche cachée
@@ -19,8 +19,9 @@ class DeepNetwork(nn.Module):
 
         self.excel = excel
 
-        # Détection automatique du GPU. Si disponible, use_gpu est défini à True.
-        self.use_gpu = torch.cuda.is_available() and gpu_automatic
+        # Détection automatique du GPU et définition de l'appareil
+        self.device = torch.device("cuda" if torch.cuda.is_available() and gpu_automatic else "cpu")
+
         # Supprimer les couches avec 0 neurones
         hidden_layers = [h for h in hidden_layers if h > 0]
 
@@ -31,7 +32,7 @@ class DeepNetwork(nn.Module):
         # Définir les couches du réseau
         self.layers = nn.ModuleList()
         previous_size = input_size
-        
+
         for hidden_size in hidden_layers:
             self.layers.append(nn.Linear(previous_size, hidden_size))
             previous_size = hidden_size
@@ -44,22 +45,20 @@ class DeepNetwork(nn.Module):
             nn.init.uniform_(layer.weight, *weight_init_range)
         nn.init.uniform_(self.output_layer.weight, *weight_init_range)
 
-        # Si GPU est disponible, déplacer le modèle sur GPU
-        if self.use_gpu:
-            self.cuda()
+        # Déplacer le modèle sur l'appareil sélectionné (GPU ou CPU) après l'initialisation
+        self.to(self.device)  # Cela peut rester ici, après la définition des couches
 
     def forward(self, x):
         """
         Fonction de propagation avant du réseau.
-        Si un GPU est disponible, les tenseurs sont déplacés sur le GPU.
         """
-        if self.use_gpu:
-            x = x.cuda()  # Déplacer le tenseur sur GPU si nécessaire
-        
+        # Déplacer le tenseur sur l'appareil sélectionné
+        x = x.to(self.device)
+
         # Propagation à travers les couches cachées avec une activation ReLU
         for layer in self.layers:
             x = torch.relu(layer(x))
-        
+
         # Sortie linéaire
         x = self.output_layer(x)
         return x
@@ -68,6 +67,7 @@ class DeepNetwork(nn.Module):
         optimizer = optim.SGD(self.parameters(), lr=params['learning_rate'])
         loss_func = nn.CrossEntropyLoss()
         rows = []
+
         for epoch in range(params['nb_epochs']):
             debut_iteration = datetime.now().strftime("%H:%M:%S")
             if not is_nested:
@@ -79,9 +79,8 @@ class DeepNetwork(nn.Module):
             for x_batch, y_batch in train_loader:
                 optimizer.zero_grad()
 
-                # Déplacer les données sur GPU si nécessaire
-                if self.use_gpu:
-                    x_batch, y_batch = x_batch.cuda(), y_batch.cuda()
+                # Déplacer les données sur l'appareil sélectionné
+                x_batch, y_batch = x_batch.to(self.device), y_batch.to(self.device)
 
                 y_pred = self.forward(x_batch)
                 loss = loss_func(y_pred, torch.argmax(y_batch, dim=1))
@@ -96,8 +95,8 @@ class DeepNetwork(nn.Module):
             val_loss = 0
             with torch.no_grad():
                 for x_val, y_val in val_loader:
-                    if self.use_gpu:
-                        x_val, y_val = x_val.cuda(), y_val.cuda()
+                    # Déplacer les données sur l'appareil sélectionné
+                    x_val, y_val = x_val.to(self.device), y_val.to(self.device)
 
                     y_val_pred = self.forward(x_val)
                     loss = loss_func(y_val_pred, torch.argmax(y_val, dim=1))
@@ -111,8 +110,8 @@ class DeepNetwork(nn.Module):
             total = 0
             with torch.no_grad():
                 for x_test, y_test in test_loader:
-                    if self.use_gpu:
-                        x_test, y_test = x_test.cuda(), y_test.cuda()
+                    # Déplacer les données sur l'appareil sélectionné
+                    x_test, y_test = x_test.to(self.device), y_test.to(self.device)
 
                     y_test_pred = self.forward(x_test)
                     loss = loss_func(y_test_pred, torch.argmax(y_test, dim=1))

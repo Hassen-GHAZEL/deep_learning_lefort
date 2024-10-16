@@ -79,13 +79,13 @@ if __name__ == '__main__':
 
                     # Initialisation du modèle avec les hyperparamètres actuels
                     model = DeepNetwork(params['input_size'], params['hidden_size'], params['output_size'],
-                                                  params['weight_init_range'], excel, False)
+                                                  params['weight_init_range'], excel, True)
 
                     # Création des DataLoaders (jeu d'entraînement et jeu de test sont constants)
                     train_loader, val_loader, test_loader = charger_donnees(train_dataset, test_dataset, params)
 
                     # Entraînement et évaluation du modèle
-                    model.train_and_evaluate("EVERYTHING", train_loader, val_loader, test_loader, params)
+                    model.train_and_evaluate("EVERYTHING", train_loader, val_loader, test_loader, params, False)
 
                     heure_fin_iteration = datetime.now().strftime("%H:%M:%S")
                     print(f"Heure de fin itération : {heure_fin_iteration}")
