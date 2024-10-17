@@ -102,6 +102,7 @@ class DeepNetwork(nn.Module):
                     loss = loss_func(y_val_pred, torch.argmax(y_val, dim=1))
                     val_loss += loss.item()
 
+            
             val_loss /= len(val_loader)
 
             # Phase de test

@@ -74,18 +74,19 @@ if __name__ == '__main__':
                         weight_init_range=weight_init_range
                     )
 
-                    use_GPU = get_gpu_temperature() < 50
+                    # use_GPU = get_gpu_temperature() < 50
 
+                    use_GPU = True
 
                     # Initialisation du modèle avec les hyperparamètres actuels
                     model = DeepNetwork(params['input_size'], params['hidden_size'], params['output_size'],
-                                                  params['weight_init_range'], excel, True)
+                                                  params['weight_init_range'], excel, use_GPU)
 
                     # Création des DataLoaders (jeu d'entraînement et jeu de test sont constants)
                     train_loader, val_loader, test_loader = charger_donnees(train_dataset, test_dataset, params)
 
                     # Entraînement et évaluation du modèle
-                    model.train_and_evaluate("EVERYTHING", train_loader, val_loader, test_loader, params, False)
+                    model.train_and_evaluate("EVERYTHING", train_loader, val_loader, test_loader, params, True)
 
                     heure_fin_iteration = datetime.now().strftime("%H:%M:%S")
                     print(f"Heure de fin itération : {heure_fin_iteration}")
@@ -100,5 +101,5 @@ if __name__ == '__main__':
 
     create_or_overwrite_file("txt/info.txt", f"Nombre de répétitions des hyperparamètres par défaut : {compt_repetitions}")
     enregistrer_fin_programme()
-    git_commit_and_push("Toutes les combinaisons d'hyperparamètres ont été testées pour deep_network, y compris (-0.1, 0.1) !")
+    git_commit_and_push("Toutes les combinaisons d'hyperparamètres ont été testées pour deep_network, y compris (-0.1, 0.1) AVEC nan!")
     # shutdown_system()
