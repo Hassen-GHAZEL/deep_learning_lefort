@@ -62,10 +62,10 @@ class MNISTModel:
 
             # Évaluer sur le jeu de test
             test_loss, test_acc = self.evaluate(test_loader)
+            test_acc*=100
 
             print(
-                f'Epoch {epoch + 1}/{self.nb_epochs}, Train Loss: {train_loss:.4f}, Train Acc: {train_accuracy:.4f}, '
-                f'Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}, Test Loss: {test_loss:.4f}, Test Acc: {test_acc:.4f}')
+                f'Epoch {epoch + 1}/{self.nb_epochs}, Train Loss: {train_loss:.4f} Val Loss: {val_loss:.4f}, Test Loss: {test_loss:.4f}, Test Acc: {test_acc:.4f}')
 
 
     def evaluate(self, loader):
