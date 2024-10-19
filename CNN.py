@@ -67,7 +67,6 @@ class MNISTModel:
                 f'Epoch {epoch + 1}/{self.nb_epochs}, Train Loss: {train_loss:.4f}, Train Acc: {train_accuracy:.4f}, '
                 f'Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}, Test Loss: {test_loss:.4f}, Test Acc: {test_acc:.4f}')
 
-        return train_loss, val_loss, test_loss
 
     def evaluate(self, loader):
         self.model.eval()
