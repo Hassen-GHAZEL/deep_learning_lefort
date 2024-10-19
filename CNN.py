@@ -1,3 +1,7 @@
+from datetime import datetime
+from tools import calculer_ecart_temps
+
+
 import torch
 
 class MNISTModel:
@@ -31,8 +35,12 @@ class MNISTModel:
         )
         return model.to(self.device)
 
-    def train_and_evaluate(self, train_loader, val_loader, test_loader):
+    def train_and_evaluate(self, sheet_name, train_loader, val_loader, test_loader, is_nested=True):
+        rows = []
         for epoch in range(self.nb_epochs):
+            debut_iteration = datetime.now().strftime("%H:%M:%S")
+            if not is_nested:
+                print(f"\t\tEpoch {epoch + 1}/{self.nb_epochs} : {debut_iteration}")
             self.model.train()
             train_loss = 0
             correct_predictions = 0
@@ -67,6 +75,23 @@ class MNISTModel:
             print(
                 f'Epoch {epoch + 1}/{self.nb_epochs}, Train Loss: {train_loss:.4f} Val Loss: {val_loss:.4f}, Test Loss: {test_loss:.4f}, Test Acc: {test_acc:.4f}')
 
+            # Affichage et enregistrement des résultats
+            if not is_nested:
+                print(f"\t\tTraining Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}, "
+                      f"Test Loss: {test_loss:.4f}, Accuracy: {test_acc:.2f}%, Duration: "
+                      f"{calculer_ecart_temps(debut_iteration, datetime.now().strftime('%H:%M:%S'))}")
+            rows.append([epoch + 1, self.nb_epochs] + [self.batch_size, self.learning_rate] + [train_loss, val_loss, test_loss, test_acc])
+
+        for row in rows:
+            self.excel.add_row(sheet_name, row)
+
+        # Pour les appels imbriqués (ex. hyperparameter tuning), enregistrement succinct
+        if is_nested:
+            print(
+                f"\tTraining Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}, Test Loss: {test_loss:.4f}, Accuracy: {test_acc:.2f}%")
+        else:
+            self.excel.add_row(sheet_name, self.excel.column_titles)
+
 
     def evaluate(self, loader):
         self.model.eval()
@@ -82,4 +107,3 @@ class MNISTModel:
         loss /= len(loader)
         accuracy = correct / len(loader.dataset)
         return loss, accuracy
-
