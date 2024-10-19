@@ -50,3 +50,6 @@ programme pid=25716 demarre a 00:22:37
 programme pid=24196 demarre a 00:29:44
 programme pid=3928 demarre a 11:12:31
 programme pid=12072 demarre a 11:13:24, fini a 12:11:55, duree 00:58:31
+
+programme pid=84 demarre a 22:09:31
+programme pid=27300 demarre a 22:10:55, fini a 22:37:51, duree 00:26:56
