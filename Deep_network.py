@@ -4,7 +4,6 @@ import torch.optim as optim
 from datetime import datetime
 from tools import calculer_ecart_temps
 
-
 class DeepNetwork(nn.Module):
 
     def __init__(self, input_size, hidden_layers, output_size, weight_init_range, excel, gpu_automatic=True):
@@ -33,6 +32,7 @@ class DeepNetwork(nn.Module):
         self.layers = nn.ModuleList()
         previous_size = input_size
 
+        # Ajouter des couches cachées
         for hidden_size in hidden_layers:
             self.layers.append(nn.Linear(previous_size, hidden_size))
             previous_size = hidden_size
@@ -46,7 +46,7 @@ class DeepNetwork(nn.Module):
         nn.init.uniform_(self.output_layer.weight, *weight_init_range)
 
         # Déplacer le modèle sur l'appareil sélectionné (GPU ou CPU) après l'initialisation
-        self.to(self.device)  # Cela peut rester ici, après la définition des couches
+        self.to(self.device)
 
     def forward(self, x):
         """
@@ -82,6 +82,7 @@ class DeepNetwork(nn.Module):
                 # Déplacer les données sur l'appareil sélectionné
                 x_batch, y_batch = x_batch.to(self.device), y_batch.to(self.device)
 
+                # Prédiction et calcul de la perte
                 y_pred = self.forward(x_batch)
                 loss = loss_func(y_pred, torch.argmax(y_batch, dim=1))
                 loss.backward()
@@ -98,11 +99,11 @@ class DeepNetwork(nn.Module):
                     # Déplacer les données sur l'appareil sélectionné
                     x_val, y_val = x_val.to(self.device), y_val.to(self.device)
 
+                    # Prédiction et calcul de la perte de validation
                     y_val_pred = self.forward(x_val)
                     loss = loss_func(y_val_pred, torch.argmax(y_val, dim=1))
                     val_loss += loss.item()
 
-            
             val_loss /= len(val_loader)
 
             # Phase de test
@@ -114,10 +115,12 @@ class DeepNetwork(nn.Module):
                     # Déplacer les données sur l'appareil sélectionné
                     x_test, y_test = x_test.to(self.device), y_test.to(self.device)
 
+                    # Prédiction et calcul de la perte de test
                     y_test_pred = self.forward(x_test)
                     loss = loss_func(y_test_pred, torch.argmax(y_test, dim=1))
                     test_loss += loss.item()
 
+                    # Calculer le nombre de prédictions correctes
                     _, predicted = torch.max(y_test_pred, 1)
                     correct += (predicted == torch.argmax(y_test, dim=1)).sum().item()
                     total += y_test.size(0)

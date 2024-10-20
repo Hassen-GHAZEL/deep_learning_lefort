@@ -4,6 +4,7 @@ from Deep_network import DeepNetwork
 from Excel import ExcelManager
 from tools import *
 from constantes import *
+from datetime import datetime
 
 
 def charger_datasets(filepath):
@@ -14,8 +15,7 @@ def charger_datasets(filepath):
 
 
 if __name__ == '__main__':
-
-    enregistrer_debut_programme()
+    enregistrer_debut_programme()  # Enregistrer le début du programme
 
     # Initialisation Excel
     column_names = ["numero epoch"] + list(definir_hyperparametres().keys()) + ["Training Loss", "Validation Loss", "Test Loss", "Accuracy"]
@@ -28,10 +28,12 @@ if __name__ == '__main__':
     # Chargement des hyperparamètres par défaut
     default_params = definir_hyperparametres()
 
+    # Vérification de l'état de l'enregistrement dans Excel
     nb_row_in_excel = excel.count_rows("EVERYTHING")
     if nb_row_in_excel > 0 and ((nb_row_in_excel - 1) % 10) != 0:
         raise Exception("Une epoch ou plusieurs n'ont pas été enregistrées pour le dernier modèle !")
 
+    # Calcul du nombre de combinaisons d'hyperparamètres
     nb_combinaison = len(tab_batch_size) * len(tab_learning_rate) * len(tab_hidden_size) * len(tab_weight_init_range)
     print(f"{len(tab_batch_size)} * {len(tab_learning_rate)} * {len(tab_hidden_size)} * {len(tab_weight_init_range)} = {nb_combinaison}")
 
@@ -45,6 +47,7 @@ if __name__ == '__main__':
             for learning_rate in tab_learning_rate:
                 for batch_size in tab_batch_size:
 
+                    # Vérifier si cette itération a déjà été effectuée
                     if i <= (nb_row_in_excel - 1) / default_params['nb_epochs']:
                         print(f"Iteration {i} déjà faite")
                         i += 1
@@ -74,13 +77,12 @@ if __name__ == '__main__':
                         weight_init_range=weight_init_range
                     )
 
-                    # use_GPU = get_gpu_temperature() < 50
-
-                    use_GPU = True
+                    # Utilisation du GPU
+                    use_GPU = True  # Remplacez par la logique pour vérifier la température si nécessaire
 
                     # Initialisation du modèle avec les hyperparamètres actuels
                     model = DeepNetwork(params['input_size'], params['hidden_size'], params['output_size'],
-                                                  params['weight_init_range'], excel, use_GPU)
+                                        params['weight_init_range'], excel, use_GPU)
 
                     # Création des DataLoaders (jeu d'entraînement et jeu de test sont constants)
                     train_loader, val_loader, test_loader = charger_donnees(train_dataset, test_dataset, params)
@@ -100,6 +102,6 @@ if __name__ == '__main__':
                     i += 1
 
     create_or_overwrite_file("txt/info.txt", f"Nombre de répétitions des hyperparamètres par défaut : {compt_repetitions}")
-    enregistrer_fin_programme()
+    enregistrer_fin_programme()  # Enregistrer la fin du programme
     git_commit_and_push("Toutes les combinaisons d'hyperparamètres ont été testées pour deep_network, y compris (-0.1, 0.1) AVEC nan!")
-    # shutdown_system()
+    shutdown_system()  # Arrêt du système
