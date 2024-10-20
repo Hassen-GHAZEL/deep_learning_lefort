@@ -15,12 +15,17 @@ def save_boxplot_with_stats(excel_file, sheet_name, column_name, output_file="im
     # Charger les données depuis le fichier Excel
     df = pd.read_excel(excel_file, sheet_name=sheet_name)
 
-    # Vérifier que la colonne existe
+    # Vérifier que les colonnes existent
     if column_name not in df.columns:
         raise ValueError(f"La colonne '{column_name}' n'existe pas dans la feuille '{sheet_name}'.")
+    if 'numero_epoch' not in df.columns or 'nb_epochs' not in df.columns:
+        raise ValueError("Les colonnes 'numero_epoch' et 'nb_epochs' doivent exister dans la feuille.")
 
-    # Extraire les données de la colonne
-    data = df[column_name].dropna()  # Supprime les valeurs NaN
+    # Filtrer les données pour ne garder que celles où 'numero_epoch' == 'nb_epochs'
+    filtered_data = df[df['numero_epoch'] == df['nb_epochs']]
+
+    # Extraire les données de la colonne d'intérêt
+    data = filtered_data[column_name].dropna()  # Supprime les valeurs NaN
 
     # Calcul des statistiques
     min_val = round(data.min(), 2)
@@ -56,6 +61,7 @@ def save_boxplot_with_stats(excel_file, sheet_name, column_name, output_file="im
     # Sauvegarder le plot en fichier PNG
     plt.savefig(output_file)
     plt.close()
+
 
 def definir_hyperparametres(batch_size=5, 
                             nb_epochs=10, 

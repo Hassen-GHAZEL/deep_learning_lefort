@@ -17,7 +17,7 @@ def evaluer_hyperparametre(nom, valeurs, params):
 
         # Mettre à jour les paramètres avec la valeur testée
         params[nom.lower()] = valeur
-        print(f"\tHyperparamètres : {params}")
+        print(f"\tHyperparamètres : {params['batch_size']}, {params['learning_rate']}")
 
         # Charger les données d'entraînement et de test avec validation
         train_loader, val_loader, test_loader = charger_donnees(train_dataset, test_dataset, params)
@@ -32,7 +32,7 @@ def evaluer_hyperparametre(nom, valeurs, params):
         )
 
         # Entraîner et évaluer le modèle
-        model.train_and_evaluate("Sheet1", train_loader, val_loader, test_loader)
+        model.train_and_evaluate(nom, train_loader, val_loader, test_loader, is_nested=False)
 
         heure_fin_iteration = datetime.now().strftime("%H:%M:%S")
         ecart = calculer_ecart_temps(heure_debut_iteration, heure_fin_iteration)
@@ -68,4 +68,4 @@ if __name__ == '__main__':
     # Calculer et afficher le temps total d'exécution
     enregistrer_fin_programme()
     git_commit_and_push("Analyse des hyperparamètres pour le modèle CNN terminée")
-    shutdown_system()
+    # shutdown_system()

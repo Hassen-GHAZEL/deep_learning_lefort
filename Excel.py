@@ -70,6 +70,30 @@ class ExcelManager:
             return sheet.max_row  # max_row retourne le nombre de lignes non vides
         return 0
 
+    def read_rows(self, sheet_name: str):
+        """Parcourt les lignes de la feuille spécifiée et renvoie les données sous forme de liste de listes.
+        Si la feuille n'existe pas, une erreur est générée si le fichier n'existe pas."""
+        # Vérification de l'existence du fichier
+        if not os.path.exists(self.file_path):
+            raise FileNotFoundError(f"Le fichier {self.file_path} n'existe pas.")
+
+        # Vérification de l'existence de la feuille
+        if sheet_name not in self.sheet_titles:
+            for sheet in self.workbook.sheetnames:
+                print(f"Feuille : {sheet}")
+            raise ValueError(f"La feuille {sheet_name} n'existe pas dans le fichier {self.file_path}.")
+
+        # Récupérer la feuille
+        sheet = self.workbook[sheet_name]
+
+        # Parcourir les lignes et les ajouter à une liste
+        rows = []
+        for row in sheet.iter_rows(values_only=True):  # values_only=True pour obtenir uniquement les valeurs
+            rows.append(row)
+
+        return rows
+
+
     @staticmethod
     def is_float_and_contains_dot(value):
         """Vérifie si une valeur est un float (ou peut être convertie en float) et contient un point décimal."""
